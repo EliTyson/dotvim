@@ -1,0 +1,10 @@
+# Folders
+/views
+/.zips
+
+# Files
+.NERDTree*
+
+# Filetypes
+*.zip
+
