@@ -326,7 +326,7 @@ if !has('gui_running')
     " packadd! terminus   "Changes cursor, mouse, etc. for terminal vim
 endif
 "
-"Extra Plugins
+"Colorscheme Plugins
 packadd! ScrollColors       "Scroll through color schemes
 " usage
 "  :SCROLL or :COLOR => colorscheme browser

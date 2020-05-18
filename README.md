@@ -29,5 +29,12 @@ You can use the foreach command to execute any shell script in from the root of 
     git submodule foreach git pull origin master
 
 ## Updates
-Matt noted in the comments that when you follow this method, generating helptags dirties the submodule’s git repository tree. Several other people chimed in with suggestions on how to fix this. Nils Haldenwang has written a blog post describing a simple fix, which just involves adding the line ignore = dirty to the .gitmodules file for each submodule that reports a dirty tree when you run git status. Go and read Nils’s blog post, which goes into a bit more detail.
+Matt noted in the comments that when you follow this method, generating helptags dirties the submodule’s git repository tree. Several other people chimed in with suggestions on how to fix this. Nils Haldenwang has written a blog post describing a simple fix, which just involves adding the line ignore = dirty to the .gitmodules file for each submodule that reports a dirty tree when you run git status. Go and read Nils’s [blog post](http://www.nils-haldenwang.de/frameworks-and-tools/git/how-to-ignore-changes-in-git-submodules), which goes into a bit more detail.
+* Add `ignore = untracked` instead (if you don&apos;t want to ignore modified files).
+* E.g.,
+
+    [submodule "bundle/fugitive"]
+        path = bundle/fugitive
+        url = git://github.com/tpope/vim-fugitive.git
+        ignore = untracked
 
