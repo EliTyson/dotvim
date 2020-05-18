@@ -161,6 +161,7 @@ if has('win32')
     set directory=$HOME/AppData/Roaming/Vim// "sets file directory (used for swap files)
     set backupdir=$HOME/AppData/Roaming/Vim// "sets directory for write backups
     set undodir=$HOME/AppData/Roaming/Vim//   "sets directory for undo files
+    set viminfofile=$HOME/AppData/Roaming/Vim/_viminfo "sets file name for viminfo
     " set undofile                              "persistent undo, .un~ files saved
 endif
 if has('gui_running')
@@ -212,10 +213,11 @@ set statusline=%f\ %m\ %r\ Line:%l/%L[%p%%]\ Col:%c\ Buf:%n\ [%b][0x%B]
 "
 "TEXT {{{1
 "=======================================================
-filetype on             "enable file type detection
-filetype plugin on
-filetype indent on
+filetype plugin indent on   "ensure filetype detection enabled
 syntax enable           "enable syntax highlighting, 'on' forces defaults
+if executable('par') == 1   "executable() returns '-1' for 'not implemented...'
+    set formatprg=par\ -w80
+endif
 set wrap                "word wrap (on by default) (soft-wraps text)
 set linebreak           "prevent word wrap from splitting words
 set breakindent         "indents broken lines to match 1st line
@@ -224,8 +226,8 @@ set showbreak=…         "elipsis char (u2026) for soft-wrapped lines
 " set textwidth=80      "# of columns before new row automatically starts
 set whichwrap=<,>,[,]   "enable <left>/<right> to loop up/down lines
 set formatoptions+=l    "long lines already past tw not auto-wrapped in insert mode
-" set formatoptions+=ta "automatic formatting of paragraphs
-" set formatoptions-=ta "remove automatic formatting of paragraphs
+" set formatoptions+=a  "automatic formatting of paragraphs
+" set formatoptions-=a  "remove automatic formatting of paragraphs
 " set nrformats+=alpha  "increment [A-Z a-z] (disrupts linewise " /)
 " set cpo+=$            "use on screen '$' display w/ 'c' or 'C' commands
 " set display=lastline  "don't display @ with long paragraphs
@@ -252,6 +254,9 @@ set smartcase  "upper-case sensitive search
 augroup my_autocmds
     autocmd!
     autocmd BufWinEnter *.txt,*.md silent loadview  "auto-load views
+    if executable('pandoc') == 1   "executable() returns '-1' for 'not implemented...'
+        autocmd Filetype html set formatprg=\ pandoc\ -f\ html\ -t\ html
+    endif
 augroup END
 "
 "PACKAGES/PLUGINS {{{1
@@ -328,9 +333,9 @@ packadd! ScrollColors       "Scroll through color schemes
 "  :CN/:CP => Next Color-Scheme / Previous Color-Scheme
 packadd! setcolors          "another colorscheme scroller
 let s:reversible = 'gruvbox one solarized8'
-let s:blue = 'atlantis codeschool colorsbox-material lost-shrine mod8 moonlight pink-moon plastic seagrey-dark termschool two-firewatch vrunchbang-dark yellow-moon'
-let s:dark = 'Kafka ayu colorsbox-stbright colorsbox-steighties colorsbox-stnight office-dark slate xoria256 jellybeans badwolf'
 let s:light = 'seagrey-light vanilla-cake spring-night'
+let s:blue = 'atlantis codeschool colorsbox-material lost-shrine mod8 moonlight pink-moon plastic seagrey-dark termschool two-firewatch vrunchbang-dark yellow-moon'
+let s:dark = 'Kafka ayu colorsbox-stbright colorsbox-steighties colorsbox-stnight office-dark slate xoria256 jellybeans badwolf molokai tender'
 let g:auto_colors = split(s:reversible.' '.s:light.' '.s:blue.' '.s:dark)
 "
 "Color Schemes
