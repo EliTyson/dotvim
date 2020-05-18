@@ -1,48 +1,48 @@
 [submodule "pack/Core/opt/abolish"]
 	path = pack/Core/opt/abolish
 	url = https://github.com/tpope/vim-abolish.git
-    ignore = untracked
+	ignore = untracked
 [submodule "pack/Core/opt/airline"]
 	path = pack/Core/opt/airline
 	url = https://github.com/vim-airline/vim-airline.git
-    ignore = untracked
+	ignore = untracked
 [submodule "pack/Core/opt/commentary"]
 	path = pack/Core/opt/commentary
 	url = https://github.com/tpope/vim-commentary.git
-    ignore = untracked
+	ignore = untracked
 [submodule "pack/Core/opt/ctrlp"]
 	path = pack/Core/opt/ctrlp
 	url = https://github.com/ctrlpvim/ctrlp.vim.git
-    ignore = untracked
+	ignore = untracked
 [submodule "pack/Core/opt/mundo"]
 	path = pack/Core/opt/mundo
 	url = https://github.com/simnalamburt/vim-mundo.git
-    ignore = untracked
+	ignore = untracked
 [submodule "pack/Core/opt/nerdtree"]
 	path = pack/Core/opt/nerdtree
 	url = https://github.com/preservim/nerdtree.git
-    ignore = untracked
+	ignore = untracked
 [submodule "pack/Core/opt/repeat"]
 	path = pack/Core/opt/repeat
 	url = https://github.com/tpope/vim-repeat.git
-    ignore = untracked
+	ignore = untracked
 [submodule "pack/Core/opt/surround"]
 	path = pack/Core/opt/surround
 	url = https://github.com/tpope/vim-surround.git
-    ignore = untracked
+	ignore = untracked
 [submodule "pack/Core/opt/tabular"]
 	path = pack/Core/opt/tabular
 	url = https://github.com/godlygeek/tabular.git
-    ignore = untracked
+	ignore = untracked
 [submodule "pack/Core/opt/traces"]
 	path = pack/Core/opt/traces
 	url = https://github.com/markonm/traces.vim.git
-    ignore = untracked
+	ignore = untracked
 [submodule "pack/Core/opt/unimpaired"]
 	path = pack/Core/opt/unimpaired
 	url = https://github.com/tpope/vim-unimpaired.git
-    ignore = untracked
+	ignore = untracked
 [submodule "pack/Core/opt/visual-star-search"]
 	path = pack/Core/opt/visual-star-search
 	url = https://github.com/nelstrom/vim-visual-star-search.git
-    ignore = untracked
+	ignore = untracked
