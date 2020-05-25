@@ -18,45 +18,39 @@ function! s:GrepOperator(type)
     " Copying motion selected text to Grep
     elseif a:type ==# 'char' && line("'[") ==# line("']")
         " save last visual selection
+        let v_mode = visualmode()
         let save_visual_start_mark = getpos("'<")
         let save_visual_end_mark = getpos("'>")
 
         " copy text that was operated on
         normal! `[v`]y
 
+        " Restore the visual mode to (line or blockwise)
+        if v_mode ==# "V"
+            silent execute "normal V\<C-C>"
+        elseif v_mode ==# "\<C-V>"
+            silent execute "normal \<C-V>\<C-C>"
+        endif
         " restore last visual selection
         call setpos("'<", save_visual_start_mark)
         call setpos("'>", save_visual_end_mark)
-
     " Return if no text to grep
     else
         " restore 'selection' setting
         let &selection = sel_save
         return
-
     endif
 
-    " Choose grepprg based on shell
-    if match(&shell, 'cmd.exe') >= 0
-        let &g:grepprg='findstr /n'
-        silent execute 'grep! /SC:^"' . escape(substitute(escape(@@, '\"^<>()'), '\', '\\^', 'g'), '!%#')  . '^" %:p:h/*'
-        redraw
-        copen
-
-"     elseif match(&shell, 'bash.exe') >= 0
-"         let &g:grepprg='grep -n'
-"         silent execute "grep! -R " . shellescape(@@, 1) . " %:p:h/*"
-"         redraw
-"         copen
-
-"     elseif match(&shell, 'powershell.exe') >= 0
-"         let &g:grepprg='grep -n'
-"         silent execute "grep! -R " . shellescape(@@, 1) . " %:p:h/*"
-"         redraw
-"         copen
-    else
+    " use grep if available
+    if executable('grep') == 1   "executable() returns '-1' for 'not implemented...'
         let &g:grepprg='grep -n'
         silent execute "grep! -R " . shellescape(@@, 1) . " %:p:h/*"
+        redraw
+        copen
+    " use findstr as fallback
+    elseif executable('findstr') == 1   "executable() returns '-1' for 'not implemented...'
+        let &g:grepprg='findstr /n'
+        silent execute 'grep! /SC:^"' . escape(substitute(escape(@@, '\"^<>()'), '\', '\\^', 'g'), '!%#')  . '^" %:p:h/*'
         redraw
         copen
     endif

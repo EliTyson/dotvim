@@ -37,7 +37,7 @@ function! s:QuickfixToggle()
     let g:quickfixtoggle_previous_window_id = win_getid()
     let win_info = copy(getwininfo())
     cclose
-"
+    "
     " copen if cclose did nothing
     if win_info ==# getwininfo()
         let g:quickfixtoggle_copen_window_id = win_getid()
@@ -64,7 +64,6 @@ abbrev <expr> D;; '['.strftime("%Y-%m-%d").']'
 "
 augroup learning_vimscript
     autocmd!
-    autocmd FileType markdown set wrap
     autocmd FileType markdown setlocal list
     autocmd FileType markdown setlocal spell
     autocmd FileType python nnoremap <buffer> <localleader>c I# <ESC>
@@ -108,6 +107,8 @@ augroup filetype_vim
     autocmd!
     autocmd FileType vim setlocal foldmethod=marker "unnecessary if use modelines
 augroup END
+"
+let g:potion_command = "/Users/pi/potion/bin/potion"
 "
 "VIMRC DEFAULT SETTINGS {{{1
 "=======================================================
@@ -262,6 +263,14 @@ augroup END
 "PACKAGES/PLUGINS {{{1
 "=======================================================
 "Core Plugins
+" trial plugins
+packadd! exchange
+packadd! scratch
+"<leader>s mapped to open Scratch buffer
+" packadd! loupe              "(1)center,underline; (2)\v default; (3)sets some defaults
+" let g:LoupeClearHighlightMap = 0    "prevent nohls mapping to leader-n
+" let g:LoupeVeryMagic = 0            " disable auto '\v'
+
 " background plugins
 packadd! matchit            "Vim distribution % plugin
 packadd! commentary         "Tim Pope's commentary.vim
@@ -274,9 +283,6 @@ packadd! tabular            "tabular.vim for aligning text
 " search plugins
 packadd! visual-star-search "enables */# searches on visual selections
 packadd! traces             "previews of ranges and substitutions
-" packadd! loupe              "(1)center,underline; (2)\v default; (3)sets some defaults
-" let g:LoupeClearHighlightMap = 0    "prevent nohls mapping to leader-n
-" let g:LoupeVeryMagic = 0            " disable auto '\v'
 "
 " visible plugins
 packadd! ctrlp              "ctrlp.vim fuzzy file finder
@@ -300,6 +306,7 @@ if has('win32')
 endif
 let g:NERDTreeAutoDeleteBuffer=1 "auto bd on file delete/rename
 let g:NERDTreeShowBookmarks=1   "show bookmarks by default
+let g:NERDTreeShowHidden=1      "show hidden (i.e., "dot files")
 " <leader>n mapped to toggle
 "
 let g:airline_powerline_fonts = 1 "use powerline symbols (only available for some fonts)
@@ -381,17 +388,19 @@ nnoremap <S-F8> :call NextColor(-1)<CR>
 nnoremap <A-F8> :call NextColor(0)<CR>
 "
 nnoremap <F9> :set guifont=Hack:h9:cDEFAULT<CR>
-nnoremap <F10> :set guifont=Fira_Code:h9:cDEFAULT<CR>
+nnoremap <S-F9> :set guifont=Iosevka_Extended:h10:cDEFAULT<CR>
+nnoremap <F10> :set guifont=JetBrains_Mono:h9:cDEFAULT<CR>
+nnoremap <S-F10> :set guifont=Fira_Code:h9:cDEFAULT<CR>
 nnoremap <F11> :set guifont=Fantasque_Sans_Mono:h11:cDEFAULT<CR>
+nnoremap <S-F11> :set guifont=mononoki:h10:cDEFAULT<CR>
 " nnoremap <F11> :set guifont=Fantasque_Sans_Mono:h10:cDEFAULT<CR>
 " nnoremap <F11> :set guifont=Source_Code_Pro:h9:cDEFAULT<CR>
-" nnoremap <F11> :set guifont=mononoki:h10:cDEFAULT<CR>
 "
 " Vimcast Shortcut to rapidly toggle 'set list'
 nnoremap <silent> <leader>l :set list!<CR>:set list?<CR>
 "
 " Vimcast Shortcut to rapidly toggle 'spelling'
-nnoremap <silent> <leader>s :set invspell<CR>:set spell?<CR>
+" nnoremap <silent> <leader>s :set invspell<CR>:set spell?<CR>
 "
 " Vimcast :Bubbling Text
 " Visually select the text that was last edited/pasted
@@ -408,11 +417,15 @@ vmap <C-DOWN> ]egv
 " http://vimcasts.org/episodes/the-edit-command/
 " note: %% now allows expansion of the current file directory
 "   ew (edit in window); es/ev (edit in split/vertical-split); et (edit in tab)
-cnoremap %% <C-R>=fnameescape(expand('%:h')).'/'<cr>
-noremap <leader>ew :e <C-R>=fnameescape(expand('%:h')).'/'<cr>
-noremap <leader>es :sp <C-R>=fnameescape(expand('%:h')).'/'<cr>
-noremap <leader>ev :vsp <C-R>=fnameescape(expand('%:h')).'/'<cr>
-noremap <leader>et :tabe <C-R>=fnameescape(expand('%:h')).'/'<cr>
+cnoremap %% <C-R>=fnameescape(expand('%:h')).'/'<CR>
+noremap <leader>ew :e <C-R>=fnameescape(expand('%:h')).'/'<CR>
+noremap <leader>es :sp <C-R>=fnameescape(expand('%:h')).'/'<CR>
+noremap <leader>ev :vsp <C-R>=fnameescape(expand('%:h')).'/'<CR>
+noremap <leader>et :tabe <C-R>=fnameescape(expand('%:h')).'/'<CR>
+"
+"Scratch Mappings
+nnoremap <leader>s :Scratch<CR>
+nnoremap <leader>S :ScratchPreview<CR>
 "
 "CtrlP Mappings:
 nnoremap <space><space> :CtrlPMixed<CR>
