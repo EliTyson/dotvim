@@ -1,0 +1,107 @@
+-- parsed --
+
+-- compiled --
+code (assign (expr (msg ("factorial" nil nil)) expr (proto (list (expr (msg ("n"))) block (assign (e
+xpr (msg ("total")) expr (value (1))), expr (msg ("n"), msg ("to" value (1) proto (list (expr (msg (
+"i"))) block (assign (expr (msg ("total")) times (expr (msg ("total")) expr (msg ("i"))))))
+)), expr (msg ("total")))))), expr (value (10), msg ("times" list (expr (msg ("i"))) block (expr (ms
+g ("i"), msg ("string"), msg ("print")), expr (value ("! is: " nil nil), msg ("print")), expr (msg (
+"factorial" list (expr (msg ("i"))) nil), msg ("string"), msg ("print")), expr (value ("
+"), msg ("print")))
+)))
+; function definition: 40 bytes
+; () 3 registers
+.local factorial ; 0
+.value times ; 0
+; function definition: 48 bytes
+; (n) 4 registers
+.local n ; 0
+.local total ; 1
+.value to ; 0
+; function definition: 20 bytes
+; (i) 2 registers
+.local i ; 0
+.upval total ; 0
+[1] getupval 0 0
+[2] getlocal 1 0    ; i
+[3] mult     0 1
+[4] setupval 0 0
+[5] return   0
+; function end
+[ 1] loadpn   0 3   ; 1
+[ 2] setlocal 0 1   ; total
+[ 3] getlocal 0 0   ; n
+[ 4] move     1 0
+[ 5] loadk    0 0   ; to
+[ 6] msg      0 1
+[ 7] loadpn   2 3   ; 1
+[ 8] proto    3 0
+[ 9] getlocal 3 1   ; total
+[10] call     0 3
+[11] getlocal 0 1   ; total
+[12] return   0
+; function end
+; function definition: 152 bytes
+; (i) 3 registers
+.local i ; 0
+.upval factorial ; 0
+.value string ; 0
+.value print ; 1
+.value ! is:  ; 2
+.value
+ ; 3
+[ 1] getlocal 0 0   ; i
+[ 2] move     1 0
+[ 3] loadk    0 0   ; string
+[ 4] bind     0 1
+[ 5] loadpn   2 0   ; nil
+[ 6] call     0 2
+[ 7] move     1 0
+[ 8] loadk    0 1   ; print
+[ 9] bind     0 1
+[10] loadpn   2 0   ; nil
+[11] call     0 2
+[12] loadk    0 2   ; ! is:
+[13] move     1 0
+[14] loadk    0 1   ; print
+[15] bind     0 1
+[16] loadpn   2 0   ; nil
+[17] call     0 2
+[18] getupval 0 0
+[19] self     1
+[20] getlocal 2 0   ; i
+[21] call     0 2
+[22] move     1 0
+[23] loadk    0 0   ; string
+[24] bind     0 1
+[25] loadpn   2 0   ; nil
+[26] call     0 2
+[27] move     1 0
+[28] loadk    0 1   ; print
+[29] bind     0 1
+[30] loadpn   2 0   ; nil
+[31] call     0 2
+[32] loadk    0 3   ;
+
+[33] move     1 0
+[34] loadk    0 1   ; print
+[35] bind     0 1
+[36] loadpn   2 0   ; nil
+[37] call     0 2
+[38] return   0
+; function end
+[1] proto    0 0
+[2] setlocal 0 0    ; factorial
+[3] loadpn   0 21   ; 10
+[4] move     1 0
+[5] loadk    0 0    ; times
+[6] msg      0 1
+[7] proto    2 1
+[8] getlocal 2 0    ; factorial
+[9] call     0 2
+[10] return   0
+; function end
+
+** compiled code saved to factorial.pnb
+** run it with: potion factorial.pnb
+

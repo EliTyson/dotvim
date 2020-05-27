@@ -108,7 +108,7 @@ augroup filetype_vim
     autocmd FileType vim setlocal foldmethod=marker "unnecessary if use modelines
 augroup END
 "
-let g:potion_command = "/Users/pi/potion/bin/potion"
+let g:potion_command = "/home/pi/potion/bin/potion"
 "
 "VIMRC DEFAULT SETTINGS {{{1
 "=======================================================
@@ -156,7 +156,7 @@ set wildignore+=*\^ntuser.*,*\Web\*,*\AppData\*,*.dat,*.ini,*.exe
 set wildignore+=*.mp4,*.mkv,*.m4a,*.mka,*.wav,*.aac,*.ffindex,*.pdf,*.jpg,*.gif,*.png
 if has('win32')
     set path+=$HOME,$HOME/Desktop             "set path to search for find commands
-    " cd $HOME/Desktop                        "sets current directory
+    cd $HOME/Desktop                        "sets current directory
     " set shell=<path to shell>               "use alternate shell
     set viewdir=$HOME/vimfiles/views//        "sets directory to save views
     set directory=$HOME/AppData/Roaming/Vim// "sets file directory (used for swap files)
