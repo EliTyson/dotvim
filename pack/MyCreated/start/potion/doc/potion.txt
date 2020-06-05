@@ -1,0 +1,117 @@
+*potion.txt* functionality for the potion programming language
+
+                           ____        __  _            ~
+                          / __ \____  / /_(_)___  ____  ~
+                         / /_/ / __ \/ __/ / __ \/ __ \ ~
+                        / ____/ /_/ / /_/ / /_/ / / / / ~
+                       /_/    \____/\__/_/\____/_/ /_/  ~
+
+               Functionality for the Potion programming language.
+             Includes syntax highlighting, code folding, and more!
+==============================================================================
+CONTENTS                                                      *PotionContents*
+
+    1. Usage ........................... |PotionUsage|
+    2. Mappings ........................ |PotionMappings|
+        2.1 Compile & Run .............. |PotionCompileAndRun|
+        2.2 Show Bytecode .............. |PotionShowBytecode|
+    3. Configuration ................... |PotionConfiguration|
+    4. License ......................... |PotionLicense|
+    5. Bugs ............................ |PotionBugs|
+    6. Contributing .................... |PotionContributing|
+    7. Changelog ....................... |PotionChangelog|
+    8. Credits ......................... |PotionCredits|
+
+==============================================================================
+1: Usage                                                         *PotionUsage*
+
+This plugin with automatically provide syntax highlighting for
+Potion files (files ending in .pn).
+
+It also automatically folds Potion files. Folding is based on indent level
+with two exceptions:
+    1. Folds include the line before the indent.
+    2. Blank lines are folded at the same level as later lines.
+
+Section Movements have been redefined to work with Potion files. Two types of
+section movments are supported:
+    `]]` and `[[` move forwards and backwards to the start of any line
+    containing non-whitespace as the first character and the 1st line of the
+    file.
+
+    `][` and `[]` move forwards and backwards to the start of any line that
+    contains non-whitespace as the first character, an equal sign somewhere
+    insidethe line, and ends with a colon.
+
+==============================================================================
+2: Mappings                                                   *PotionMappings*
+
+Potion supports two mappings that utilize the potion comiler. They rely on
+|g:potion_command| being properly configured.
+
+------------------------------------------------------------------------------
+2.1 Compile & Run                                        *PotionCompileAndRun*
+
+Bound to: <localleader>r
+
+Saves the buffer's potion code, then will "compile and run" it in the shell.
+
+------------------------------------------------------------------------------
+2.2 Show Bytecode                                         *PotionShowByteCode*
+
+Bound to: <localleader>b
+
+Save the buffer's potion code, then displays the bytecode in a vertical split.
+Every time <localleader>b is used this buffer is cleared and updated.
+
+==============================================================================
+Section 3: Configuration                                 *PotionConfiguration*
+
+                                                            *g:potion_command*
+Potion has only one configuration setting: g:potion_command. It points to the
+location of the potion executable. It is used for the |PotionCompileAndRun|
+and |PotionShowByteCode| mappings. The default value "potion" will only work
+if the potion executable is in your $PATH.
+
+If the potion executable isn't in your path add the path to your |vimrc|: >
+
+    let g:potion_command = "/Users/{username}/src/potion/bin/potion"
+
+==============================================================================
+Section 4: License                                             *PotionLicense*
+
+Potion is MIT licensed.
+https://github.com/EliTyson/vim-potion-tutorial/blob/master/LICENSE
+
+==============================================================================
+Section 5: Bugs                                                   *PotionBugs*
+
+Potion was created for educational purposes and is (probably) not being
+actively maintained, but feel free to post bugs on the issue tracker:
+https://github.com/EliTyson/vim-potion-tutorial/issues
+
+==============================================================================
+Section 6: Contributing                                   *PotionContributing*
+
+Again, Potion was created for educational purposes and is (probably) not being
+actively maintained, but feel free to send pull requests:
+https://github.com/EliTyson/vim-potion-tutorial/pulls
+
+==============================================================================
+Section 7: Changelog                                         *PotionChangelog*
+
+v0.0.1
+    * Initial version created for educational purposes.
+
+==============================================================================
+Section 8: Credits                                             *PotionCredits*
+
+Potion was created by Eli Tyson as part of a tutorial provided in Steve Losh's
+excellent book, Learn Vimscript the Hard Way, available for free online at
+https://learnvimscriptthehardway.stevelosh.com
+
+Nearly all of the ideas and code used in Potion were provided by Steve Losh.
+
+==============================================================================
+
+vim:tw=78:ft=help:et:nospell:norl

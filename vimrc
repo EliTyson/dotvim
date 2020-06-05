@@ -1,6 +1,7 @@
 " vim: foldmethod=marker
 set encoding=utf-8      "if encounter 'CONVERSION ERROR' use ':w ++enc=utf-8'
 scriptencoding utf-8
+set pythonthreedll=python38.dll "was defaulting to python37.dll
 "
 "--------------
 "   MY VIMRC   "
@@ -12,6 +13,8 @@ nnoremap <leader>ve :split $MYVIMRC<CR>
 nnoremap <leader>vs :source $MYVIMRC<CR>
 nnoremap <C-H> 0
 nnoremap <C-L> $
+inoremap <S-Up> <ESC>gUiwgi
+inoremap <S-Down> <ESC>guiwgi
 inoremap jk <ESC>
 inoremap <ESC> <NOP>
 nnoremap <leader># :execute "rightbelow split " . bufname("#")<CR>
@@ -23,11 +26,7 @@ nnoremap <silent> <leader>f :call <SID>FoldColumnToggle()<CR>
 "
 " toggle fold columns
 function! s:FoldColumnToggle()
-    if &foldcolumn
-        setlocal foldcolumn=0
-    else
-        setlocal foldcolumn=3
-    endif
+    let &l:foldcolumn = (&l:foldcolumn) ? 0 : 3
 endfunction
 "
 " toggle quickfix window
@@ -35,25 +34,31 @@ nnoremap <silent> <leader>q :call <SID>QuickfixToggle()<CR>
 "
 function! s:QuickfixToggle()
     let g:quickfixtoggle_previous_window_id = win_getid()
-    let win_info = copy(getwininfo())
+    let win_info = getwininfo()
     cclose
     "
     " copen if cclose did nothing
     if win_info ==# getwininfo()
         let g:quickfixtoggle_copen_window_id = win_getid()
         copen
+    " go to correct window if cclose worked
     else
-        " restore to previous window location for successful cclose
+        " try to restore to previous window location
         " if previous window was quickfix go to window when toggle opened
         if !win_gotoid(g:quickfixtoggle_previous_window_id)
             if exists("g:quickfixtoggle_copen_window_id")
                 call win_gotoid(g:quickfixtoggle_copen_window_id)
-                " echom "go to copen window"
             endif
         endif
     endif
 endfunction
 "
+" toggle `help` and `text` filetypes for current buffer
+nnoremap <silent> <leader>d :call <SID>HelpToTextToggle()<CR>
+"
+function! s:HelpToTextToggle()
+    let &filetype = !(&filetype ==# 'help') ? 'help' : 'text'
+endfunction
 "
 iabbrev teh the
 iabbrev ->;; →
@@ -80,13 +85,13 @@ augroup END
 "
 augroup filetype_markdown
     autocmd!
-    autocmd FileType markdown inoremap ',, &apos;
-    autocmd FileType markdown inoremap ",, &quot;
-    autocmd FileType markdown inoremap &,, &amp;
-    autocmd FileType markdown inoremap <,, &lt;
-    autocmd FileType markdown inoremap >,, &gt;
-    autocmd FileType markdown onoremap ih :<C-U>exe "norm! ?\\(^==\\+$\\)\\\|\\(^--\\+$\\)\r:nohlsearch\rkvg_\"<CR>
-    autocmd FileType markdown onoremap ah :<C-U>exe "norm! ?\\(^==\\+$\\)\\\|\\(^--\\+$\\)\r:nohlsearch\rg_vk0"<CR>
+    autocmd FileType markdown inoremap <buffer> ',, &apos;
+    autocmd FileType markdown inoremap <buffer> ",, &quot;
+    autocmd FileType markdown inoremap <buffer> &,, &amp;
+    autocmd FileType markdown inoremap <buffer> <,, &lt;
+    autocmd FileType markdown inoremap <buffer> >,, &gt;
+    autocmd FileType markdown onoremap <buffer> ih :<C-U>exe "norm! ?\\(^==\\+$\\)\\\|\\(^--\\+$\\)\r:nohlsearch\rkvg_\"<CR>
+    autocmd FileType markdown onoremap <buffer> ah :<C-U>exe "norm! ?\\(^==\\+$\\)\\\|\\(^--\\+$\\)\r:nohlsearch\rg_vk0"<CR>
     autocmd FileType markdown setlocal statusline=%.20f     "Path to the file (max 20 chars)
     autocmd FileType markdown setlocal statusline+=\ [%n]   "Buffer number in ' [#]'
     autocmd FileType markdown setlocal statusline+=%m       "Mofied Flag in brackets [+] or [-]
@@ -217,7 +222,7 @@ set statusline=%f\ %m\ %r\ Line:%l/%L[%p%%]\ Col:%c\ Buf:%n\ [%b][0x%B]
 filetype plugin indent on   "ensure filetype detection enabled
 syntax enable           "enable syntax highlighting, 'on' forces defaults
 if executable('par') == 1   "executable() returns '-1' for 'not implemented...'
-    set formatprg=par\ -w80
+    set formatprg=par\ -w79
 endif
 set wrap                "word wrap (on by default) (soft-wraps text)
 set linebreak           "prevent word wrap from splitting words
@@ -256,7 +261,7 @@ augroup my_autocmds
     autocmd!
     autocmd BufWinEnter *.txt,*.md silent loadview  "auto-load views
     if executable('pandoc') == 1   "executable() returns '-1' for 'not implemented...'
-        autocmd Filetype html set formatprg=\ pandoc\ -f\ html\ -t\ html
+        autocmd Filetype html setlocal formatprg=\ pandoc\ -f\ html\ -t\ html
     endif
 augroup END
 "
@@ -264,21 +269,26 @@ augroup END
 "=======================================================
 "Core Plugins
 " trial plugins
-packadd! exchange
 packadd! scratch
 "<leader>s mapped to open Scratch buffer
 " packadd! loupe              "(1)center,underline; (2)\v default; (3)sets some defaults
 " let g:LoupeClearHighlightMap = 0    "prevent nohls mapping to leader-n
 " let g:LoupeVeryMagic = 0            " disable auto '\v'
 
-" background plugins
+" Vim distribution plugins
 packadd! matchit            "Vim distribution % plugin
+" packadd! cfilter            "vim distribution quickfix list filtering plugin
+    " :Cfilter[!] /{pat}/
+    " :Lfilter[!] /{pat}/
+
+" background plugins
 packadd! commentary         "Tim Pope's commentary.vim
 packadd! surround           "Tim Pope's surround.vim
 packadd! unimpaired         "Tim Pope's unimpaired.vim
 packadd! abolish            "Tim Pope's abolish.vim
 packadd! repeat             "Tim Pope's repeat.vim
 packadd! tabular            "tabular.vim for aligning text
+packadd! exchange           "exchange with cx operator (or v_X)
 "
 " search plugins
 packadd! visual-star-search "enables */# searches on visual selections

@@ -27,9 +27,9 @@ function! s:GrepOperator(type)
 
         " Restore the visual mode to (line or blockwise)
         if v_mode ==# "V"
-            silent execute "normal V\<C-C>"
+            silent execute "normal V\<ESC>"
         elseif v_mode ==# "\<C-V>"
-            silent execute "normal \<C-V>\<C-C>"
+            silent execute "normal \<C-V>\<ESC>"
         endif
         " restore last visual selection
         call setpos("'<", save_visual_start_mark)
