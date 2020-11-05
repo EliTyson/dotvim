@@ -1,35 +1,35 @@
 
-" helper function to store buffer information
-function! s:SaveBufferInfo()
-    let saved_info = {
-        \ 'v_start':getpos("'<"),
-        \ 'v_end':getpos("'>"),
-        \ 'c_start':getpos("'["),
-        \ 'c_end':getpos("']"),
-        \ 'v_mode':visualmode(),
-        \ 'r_unnnamed':getreg('"'),
-    \}
-    return saved_info
-endfunction
+" " helper function to store buffer information
+" function! s:SaveBufferInfo()
+"     let saved_info = {
+"         \ 'v_start':getpos("'<"),
+"         \ 'v_end':getpos("'>"),
+"         \ 'c_start':getpos("'["),
+"         \ 'c_end':getpos("']"),
+"         \ 'v_mode':visualmode(),
+"         \ 'r_unnnamed':getreg('"'),
+"     \}
+"     return saved_info
+" endfunction
 
-" helper function to restore buffer information
-function! s:RestoreBufferInfo(saved)
+" " helper function to restore buffer information
+" function! s:RestoreBufferInfo(saved)
 
-    " Restore the visual mode to (line or blockwise)
-    if a:saved.v_mode ==# "V"
-        silent execute "normal V\<C-C>"
-    elseif a:saved.v_mode ==# "\<C-V>"
-        silent execute "normal \<C-V>\<C-C>"
-    endif
+"     " Restore the visual mode to (line or blockwise)
+"     if a:saved.v_mode ==# "V"
+"         silent execute "normal V\<C-C>"
+"     elseif a:saved.v_mode ==# "\<C-V>"
+"         silent execute "normal \<C-V>\<C-C>"
+"     endif
 
-    " restore marks and unnamed register
-    call setpos("'<", a:saved.v_start)
-    call setpos("'>", a:saved.v_end)
-    call setpos("'[", a:saved.c_start)
-    call setpos("']", a:saved.c_end)
-    let @@ = a:saved.r_unnnamed
+"     " restore marks and unnamed register
+"     call setpos("'<", a:saved.v_start)
+"     call setpos("'>", a:saved.v_end)
+"     call setpos("'[", a:saved.c_start)
+"     call setpos("']", a:saved.c_end)
+"     let @@ = a:saved.r_unnnamed
 
-endfunction
+" endfunction
 
 
 " Rot13 encode a string

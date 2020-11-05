@@ -1,0 +1,24 @@
+snippet temp "Avisynth Template" b
+## AVS FILE `!v strftime("%Y-%m-%d")`
+
+v= $0
+
+return v
+
+__END__
+#END OF SCRIPT
+endsnippet
+
+snippet ff "FFMpegSource2 Snippet"
+FFMS2("$1"${2:, atrack=-1, fpsnum=${3:24000${4:, fpsden=1001}}}${5:, width=${6:1280}, height=${7:720}})
+endsnippet
+
+snippet browse "test snippet for debugging"
+`!v fnamemodify(browse(0, 'File Path', '%:p:h', ''), ':p')`
+endsnippet
+
+snippet browse2 "another debug snippet"
+`!p snip.rv = vim.command('call browse(0, "", "", "")')`
+endsnippet
+
+

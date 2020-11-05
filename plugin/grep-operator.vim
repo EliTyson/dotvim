@@ -19,8 +19,8 @@ function! s:GrepOperator(type)
     elseif a:type ==# 'char' && line("'[") ==# line("']")
         " save last visual selection
         let v_mode = visualmode()
-        let save_visual_start_mark = getpos("'<")
-        let save_visual_end_mark = getpos("'>")
+        let saved_visual_start_mark = getpos("'<")
+        let saved_visual_end_mark = getpos("'>")
 
         " copy text that was operated on
         normal! `[v`]y
@@ -32,8 +32,8 @@ function! s:GrepOperator(type)
             silent execute "normal \<C-V>\<ESC>"
         endif
         " restore last visual selection
-        call setpos("'<", save_visual_start_mark)
-        call setpos("'>", save_visual_end_mark)
+        call setpos("'<", saved_visual_start_mark)
+        call setpos("'>", saved_visual_end_mark)
     " Return if no text to grep
     else
         " restore 'selection' setting

@@ -1,7 +1,7 @@
 " vim: foldmethod=marker
 set encoding=utf-8      "if encounter 'CONVERSION ERROR' use ':w ++enc=utf-8'
 scriptencoding utf-8
-set pythonthreedll=python39.dll "was defaulting to python37.dll
+set pythonthreedll=python38.dll "was defaulting to python37.dll
 "
 "--------------
 "   MY VIMRC   "

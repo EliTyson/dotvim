@@ -33,8 +33,8 @@ Matt noted in the comments that when you follow this method, generating helptags
 * Add `ignore = untracked` instead (if you don&apos;t want to ignore modified files).
 * E.g.,
 
-    [submodule "bundle/fugitive"]
-        path = bundle/fugitive
-        url = git://github.com/tpope/vim-fugitive.git
-        ignore = untracked
+        [submodule "bundle/fugitive"]
+            path = bundle/fugitive
+            url = git://github.com/tpope/vim-fugitive.git
+            ignore = untracked
 
