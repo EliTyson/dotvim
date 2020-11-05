@@ -1,119 +1,11 @@
 " vim: foldmethod=marker
 set encoding=utf-8      "if encounter 'CONVERSION ERROR' use ':w ++enc=utf-8'
 scriptencoding utf-8
-set pythonthreedll=python38.dll "was defaulting to python37.dll
+set pythonthreedll=python39.dll "was defaulting to python37.dll
 "
 "--------------
 "   MY VIMRC   "
 "--------------
-"
-"Learning Vimscript the Hard Way {{{1
-"=======================================================
-nnoremap <leader>ve :split $MYVIMRC<CR>
-nnoremap <leader>vs :source $MYVIMRC<CR>
-nnoremap <C-H> 0
-nnoremap <C-L> $
-inoremap <S-Up> <ESC>gUiwgi
-inoremap <S-Down> <ESC>guiwgi
-inoremap jk <ESC>
-inoremap <ESC> <NOP>
-nnoremap <leader># :execute "rightbelow split " . bufname("#")<CR>
-nnoremap <silent> <leader>w :2match Error /\v\s+$/<CR>
-nnoremap <silent> <leader>W :2match none<CR>
-nnoremap <silent> <leader>\ :nohlsearch<CR>
-"
-nnoremap <silent> <leader>f :call <SID>FoldColumnToggle()<CR>
-"
-" toggle fold columns
-function! s:FoldColumnToggle()
-    let &l:foldcolumn = (&l:foldcolumn) ? 0 : 3
-endfunction
-"
-" toggle quickfix window
-nnoremap <silent> <leader>q :call <SID>QuickfixToggle()<CR>
-"
-function! s:QuickfixToggle()
-    let g:quickfixtoggle_previous_window_id = win_getid()
-    let win_info = getwininfo()
-    cclose
-    "
-    " copen if cclose did nothing
-    if win_info ==# getwininfo()
-        let g:quickfixtoggle_copen_window_id = win_getid()
-        copen
-    " go to correct window if cclose worked
-    else
-        " try to restore to previous window location
-        " if previous window was quickfix go to window when toggle opened
-        if !win_gotoid(g:quickfixtoggle_previous_window_id)
-            if exists("g:quickfixtoggle_copen_window_id")
-                call win_gotoid(g:quickfixtoggle_copen_window_id)
-            endif
-        endif
-    endif
-endfunction
-"
-" toggle `help` and `text` filetypes for current buffer
-nnoremap <silent> <leader>d :call <SID>HelpToTextToggle()<CR>
-"
-function! s:HelpToTextToggle()
-    let &filetype = !(&filetype ==# 'help') ? 'help' : 'text'
-endfunction
-"
-iabbrev teh the
-iabbrev ->;; →
-iabbrev =>;; ⇒
-iabbrev SE;; §
-abbrev <expr> d;; strftime("%Y-%m-%d")
-abbrev <expr> D;; '['.strftime("%Y-%m-%d").']'
-"
-augroup learning_vimscript
-    autocmd!
-    autocmd FileType markdown setlocal list
-    autocmd FileType markdown setlocal spell
-    autocmd FileType python nnoremap <buffer> <localleader>c I# <ESC>
-    autocmd FileType avisynth nnoremap <buffer> <localleader>c I# <ESC>
-    autocmd FileType vim nnoremap <buffer> <localleader>c I" <ESC>
-    autocmd FileType markdown iabbrev <buffer> +;; <TAB>+
-    autocmd FileType markdown iabbrev <buffer> -;; <TAB><TAB>-
-augroup END
-"
-augroup filetype_html
-    autocmd!
-    autocmd FileType html nnoremap <buffer> <localleader>f Vatzf
-augroup END
-"
-augroup filetype_markdown
-    autocmd!
-    autocmd FileType markdown inoremap <buffer> ',, &apos;
-    autocmd FileType markdown inoremap <buffer> ",, &quot;
-    autocmd FileType markdown inoremap <buffer> &,, &amp;
-    autocmd FileType markdown inoremap <buffer> <,, &lt;
-    autocmd FileType markdown inoremap <buffer> >,, &gt;
-    autocmd FileType markdown onoremap <buffer> ih :<C-U>exe "norm! ?\\(^==\\+$\\)\\\|\\(^--\\+$\\)\r:nohlsearch\rkvg_\"<CR>
-    autocmd FileType markdown onoremap <buffer> ah :<C-U>exe "norm! ?\\(^==\\+$\\)\\\|\\(^--\\+$\\)\r:nohlsearch\rg_vk0"<CR>
-    autocmd FileType markdown setlocal statusline=%.20f     "Path to the file (max 20 chars)
-    autocmd FileType markdown setlocal statusline+=\ [%n]   "Buffer number in ' [#]'
-    autocmd FileType markdown setlocal statusline+=%m       "Mofied Flag in brackets [+] or [-]
-    autocmd FileType markdown setlocal statusline+=%r       "Readonly Flag in brackets [RO]
-    autocmd FileType markdown setlocal statusline+=%=       "Switch to right side
-    autocmd FileType markdown setlocal statusline+=[%03b]   "[Dec val] char (≥ 3, zero pad)
-    autocmd FileType markdown setlocal statusline+=[0x%02B] "[0xHex val] char (≥ 2, zero pad)
-    autocmd FileType markdown setlocal statusline+=[        "Add '['
-    autocmd FileType markdown setlocal statusline+=%4l      "Current line (min 4 width)
-    autocmd FileType markdown setlocal statusline+=/        "Add '/'
-    autocmd FileType markdown setlocal statusline+=%L       "Total lines
-    autocmd FileType markdown setlocal statusline+=\ :      "Add ' Col'
-    autocmd FileType markdown setlocal statusline+=%2c      "Column (min 2 width)
-    autocmd FileType markdown setlocal statusline+=]        "Add ']'
-augroup END
-"
-augroup filetype_vim
-    autocmd!
-    autocmd FileType vim setlocal foldmethod=marker "unnecessary if use modelines
-augroup END
-"
-let g:potion_command = "/home/pi/potion/bin/potion"
 "
 "VIMRC DEFAULT SETTINGS {{{1
 "=======================================================
@@ -125,7 +17,7 @@ set nocompatible                "don't change defaults to make Vim Vi compatible
 if has('win32')
     set diffexpr=MyDiff()
 endif
-"
+
 function MyDiff()
     let opt = '-a --binary '
     if &diffopt =~ 'icase' | let opt = opt . '-i ' | endif
@@ -155,63 +47,71 @@ endfunction
 set hidden                                 "allow hiding unsaved buffers
 set shellslash                            "force forward slash for expanded filenames
 set history=100                           "command line history (Default:50)
-set undolevels=1000                       "(ul) Max # of undos (Default: 10000)
+" set undolevels=1000                       "(ul) Max # of undos (Default: 10000)
 "don't expand these filetypes
 set wildignore+=*\^ntuser.*,*\Web\*,*\AppData\*,*.dat,*.ini,*.exe
 set wildignore+=*.mp4,*.mkv,*.m4a,*.mka,*.wav,*.aac,*.ffindex,*.pdf,*.jpg,*.gif,*.png
+set printoptions+=number:y              "default is (number:n ⇒ no line numbers)
+set printoptions+=left:5pc              "default is (left:10pc,right:5pc,top:5pc,bottom:5pc)
+" let &printfont = &guifont        "print using the same font as guifont
 if has('win32')
     set path+=$HOME,$HOME/Desktop             "set path to search for find commands
     cd $HOME/Desktop                        "sets current directory
     " set shell=<path to shell>               "use alternate shell
+    set shell=pwsh.exe shellcmdflag=-NoProfile\ -NoLogo\ -NonInteractive\ -Command
+    set shellquote=\" shellxquote= shellpipe=> shellredir=>
     set viewdir=$HOME/vimfiles/views//        "sets directory to save views
     set directory=$HOME/AppData/Roaming/Vim// "sets file directory (used for swap files)
     set backupdir=$HOME/AppData/Roaming/Vim// "sets directory for write backups
     set undodir=$HOME/AppData/Roaming/Vim//   "sets directory for undo files
     set viminfofile=$HOME/AppData/Roaming/Vim/_viminfo "sets file name for viminfo
-    " set undofile                              "persistent undo, .un~ files saved
 endif
 if has('gui_running')
-    " GUI is running or is about to start.
-    " Maximize gvim window (for an alternative on Windows, see simalt below).
-    " set lines=99 columns=999
+    " set lines=99 columns=999 "maximize window
     set lines=50 columns=100
+endif
+if executable('grep') == 1   "executable() returns '-1' for 'not implemented...'
+    let &g:grepprg='grep -n' "use grep (and prefix line #), instead of findstr
 endif
 "
 "INTERFACE {{{1
 "=======================================================
-colorscheme gruvbox
-if has('win32')
-    set guifont=Hack:h9:cDEFAULT    "good programming font with decent utf support
-endif
+try|colorscheme gruvbox|catch|colorscheme evening|endtry
+try|set guifont=Hack:h9:cDEFAULT|catch|endtry    "good programming font with decent utf support
 "set t_Co=256                   "256 color mode; rec'd for  Vim over SSH
 set splitbelow                  "(sb/nosb) new split below
 set splitright                  "(spr/nospr) new split to right
+set spell
 "set guioptions=egmrLt          "settings w/ menu (default: "egmrLtT")
 set guioptions-=m               "get rid of menu
 set guioptions-=t               "get rid of tear-off menu items
 set guioptions-=T               "get rid of toolbar
 set guioptions+=e               "use GUI tab bar [Causes Airline issues]
 set guioptions+=c               "use console dialogs instead of gui ones
-set guitablabel=[%N]            "define tab text: buffer number [#]
+set guitablabel=[%N]            "define tab text: tab number [#]
 set guitablabel+=%h             "define tab text: help buffer is [help]
 set guitablabel+=%t             "define tab text: show just filename (tail)
 set shortmess+=I                "disable the welcome screen
 set shortmess-=S                "do show search count message when searching!
 set number                      "show line numbers
 set ruler                       "show cursor position below each window
-set virtualedit=all             "allow cursor out of bounds
+set virtualedit=all             "(ve) allow cursor out of bounds
 set scrolloff=4                 "minimal # of lines above/below cursor
 set cmdheight=1                 "(ch) command height
-set laststatus=2                "status always on (0 never; 1 split)
-set lazyredraw                  "Don't update the display while executing macros
-set showcmd                     "show commands as typed
-set showmode                    "show mode at bottom of screen
+set laststatus=2                "(ls) status line always on (0 never; 1 split)
+set lazyredraw                  "(lz) Don't update the display while executing macros
+set showcmd                     "(sc) show commands as typed
+set showmode                    "(smd)show mode at bottom of screen
+set breakindent                 "(bri)indents broken lines to match 1st line
+set linebreak                   "(lbr)prevent word wrap from splitting words
+set showbreak=…                 "(sbr)elipsis char (u2026) for soft-wrapped lines
 set wildmenu                    "(wmu) make the command-line completion better
-set visualbell                  "(vb) use visual bell instead of beeping!
-"set fillchars=""               "get rid of characters in window separators
+set visualbell                  "(vb) use visual bell, `t_vb=` suppresses flash
+set guicursor+=c:ver20          "(gcr) use vertical bar in command line
+" set guicursor+=n-v:block-Cursor-blinkon0   "(gcr)no blink cursor
+"set fillchars=""               "(fcs)get rid of characters in window separators
 "set colorcolumn=80             "(cc) comma separated list of highlighted columns
 "set cursorline                 "(cul/nocul) highlight cursor's line
-"set guicursor=n-v-c:block-Cursor-blinkon0   # no blink cursor
 "
 set listchars=tab:▸\ ,eol:¬     "vimcast #1 textmate tabstops(u25b8) and EOL(u00ac)
 """ STATUS LINE SETTINGS FROM DEREK WYATT """
@@ -225,27 +125,23 @@ if executable('par') == 1   "executable() returns '-1' for 'not implemented...'
     set formatprg=par\ -w79
 endif
 set wrap                "word wrap (on by default) (soft-wraps text)
-set linebreak           "prevent word wrap from splitting words
-set breakindent         "indents broken lines to match 1st line
-set showbreak=…         "elipsis char (u2026) for soft-wrapped lines
 " set wrapmargin=5        "(if tw=0) # of chars to win border before wrapping starts
-" set textwidth=80      "# of columns before new row automatically starts
-set whichwrap=<,>,[,]   "enable <left>/<right> to loop up/down lines
-set formatoptions+=l    "long lines already past tw not auto-wrapped in insert mode
-" set formatoptions+=a  "automatic formatting of paragraphs
-" set formatoptions-=a  "remove automatic formatting of paragraphs
-" set nrformats+=alpha  "increment [A-Z a-z] (disrupts linewise " /)
-" set cpo+=$            "use on screen '$' display w/ 'c' or 'C' commands
+" set textwidth=80      "(tw)# of columns before new row automatically starts
+set whichwrap=<,>,[,]   "(ww) enable <left>/<right> to loop up/down line NV,IR
+set formatoptions+=l    "(fo) long lines already past tw not auto-wrapped in insert mode
+" set formatoptions+=a  "(fo) automatic formatting of paragraphs
+" set nrformats+=alpha  "(nf) increment [A-Z a-z] (disrupts linewise " /)
+" set cpoptions+=$      "(cpo) use on screen '$' display w/ 'c' or 'C' commands
 " set display=lastline  "don't display @ with long paragraphs
 "
 "TABS {{{1
 "=======================================================
 set expandtab      "expand <Tab> to spaces
-set tabstop=4      "# spaces for a <Tab>
-set shiftwidth=0   "(0=> follow ts) # spaces for auto indent (>> <<)
-set softtabstop=-1 "(-1=> follow sw) counts n spaces when TAB or BCKSPCE key used
-set backspace=2    "backspace options: 1(indent,eol); 2(indent,eol,start)
-set shiftround     "round '<' '>' (same as i_ and i_) to multiples of sw
+set tabstop=4      "(ts)spaces for a \t character
+set shiftwidth=0   "(sw)(0=> follow ts) # spaces for auto indent (>> <<)
+set softtabstop=-1 "(sts)(-1=> follow sw) spaces for <TAB> & <BS> keys
+set backspace=2    "(bs)<BS> options: 1(indent,eol); 2(indent,eol,start)
+set shiftround     "(sr)round '<' '>' (same as i_ and i_) to multiples of sw
 "
 "SEARCH {{{1
 "=======================================================
@@ -259,27 +155,107 @@ set smartcase  "upper-case sensitive search
 "=======================================================
 augroup my_autocmds
     autocmd!
-    autocmd BufWinEnter *.txt,*.md silent loadview  "auto-load views
+    " automatically load views for text files
+    " autocmd BufEnter *.txt silent loadview  "auto-load views
+    autocmd Filetype text silent loadview
+    " make pandoc the default formatprg ("gq" command) for html files
     if executable('pandoc') == 1   "executable() returns '-1' for 'not implemented...'
         autocmd Filetype html setlocal formatprg=\ pandoc\ -f\ html\ -t\ html
     endif
+augroup END
+"
+augroup learning_vimscript
+    autocmd!
+    autocmd FileType python nnoremap <buffer> <localleader>c I# <ESC>
+    autocmd FileType avisynth nnoremap <buffer> <localleader>c I# <ESC>
+    autocmd FileType vim nnoremap <buffer> <localleader>c I" <ESC>
+    autocmd FileType markdown iabbrev <buffer> +;; <TAB>+
+    autocmd FileType markdown iabbrev <buffer> -;; <TAB><TAB>-
+    autocmd FileType markdown setlocal colorcolumn=79
+    " autocmd FileType markdown match Error /\v%>79v./
+    " autocmd BufNewFile,BufRead *.md,*.markdown match Error /\v%>79v./
+    autocmd BufEnter *.md,*.markdown match Error /\v%>79v./
+    autocmd BufLeave *.md,*.markdown match none
+augroup END
+"
+augroup filetype_html
+    autocmd!
+    " fold html tags
+    autocmd FileType html nnoremap <buffer> <localleader>f Vatzf
+augroup END
+"
+augroup filetype_python
+    autocmd!
+    autocmd Filetype python setlocal colorcolumn=79
+    autocmd FileType python setlocal list spell
+augroup END
+"
+augroup filetype_markdown
+    autocmd!
+    autocmd FileType markdown setlocal list spell
+    autocmd FileType markdown inoremap <buffer> ',, &apos;
+    autocmd FileType markdown inoremap <buffer> ",, &quot;
+    autocmd FileType markdown inoremap <buffer> &,, &amp;
+    autocmd FileType markdown inoremap <buffer> <,, &lt;
+    autocmd FileType markdown inoremap <buffer> >,, &gt;
+    autocmd FileType markdown setlocal statusline=%.20f     "Path to the file (max 20 chars)
+    autocmd FileType markdown setlocal statusline+=\ [%n]   "Buffer number in ' [#]'
+    autocmd FileType markdown setlocal statusline+=%m       "Mofied Flag in brackets [+] or [-]
+    autocmd FileType markdown setlocal statusline+=%r       "Readonly Flag in brackets [RO]
+    autocmd FileType markdown setlocal statusline+=%=       "Switch to right side
+    autocmd FileType markdown setlocal statusline+=[%03b]   "[Dec val] char (≥ 3, zero pad)
+    autocmd FileType markdown setlocal statusline+=[0x%02B] "[0xHex val] char (≥ 2, zero pad)
+    autocmd FileType markdown setlocal statusline+=[        "Add '['
+    autocmd FileType markdown setlocal statusline+=%4l      "Current line (min 4 width)
+    autocmd FileType markdown setlocal statusline+=/        "Add '/'
+    autocmd FileType markdown setlocal statusline+=%L       "Total lines
+    autocmd FileType markdown setlocal statusline+=\ :      "Add ' Col'
+    autocmd FileType markdown setlocal statusline+=%2c      "Column (min 2 width)
+    autocmd FileType markdown setlocal statusline+=]        "Add ']'
+augroup END
+"
+augroup filetype_vim
+    autocmd!
+    autocmd FileType vim setlocal foldmethod=marker "unnecessary if use modelines
 augroup END
 "
 "PACKAGES/PLUGINS {{{1
 "=======================================================
 "Core Plugins
 " trial plugins
+" packadd! hexokinase
+"
+packadd! fugitive
+packadd! ultisnips
+packadd! indent-guides
+packadd! colorizer
 packadd! scratch
-"<leader>s mapped to open Scratch buffer
+"mapping: <leader>s mapped to open Scratch buffer
 " packadd! loupe              "(1)center,underline; (2)\v default; (3)sets some defaults
 " let g:LoupeClearHighlightMap = 0    "prevent nohls mapping to leader-n
 " let g:LoupeVeryMagic = 0            " disable auto '\v'
-
+"Terminal Plugins
+if !has('gui_running')
+    " for console vim
+    packadd! terminus   "Changes cursor, mouse, etc. for terminal vim
+endif
+"
 " Vim distribution plugins
 packadd! matchit            "Vim distribution % plugin
 " packadd! cfilter            "vim distribution quickfix list filtering plugin
     " :Cfilter[!] /{pat}/
     " :Lfilter[!] /{pat}/
+
+" Vim markdown ftplugin '$VIMRUNTIME/ftplugin/markdown.vim`
+" setting to enable folding (no documentation???)
+let g:markdown_folding = 1
+" to enable fenced block code syntax highlighting:
+" let g:markdown_fenced_languages = ['html', 'python', 'bash=sh']
+" to disable markdown syntax concealing add the following to your vimrc:
+" let g:markdown_syntax_conceal = 0
+" Syntax highlight is synchronized in 50 lines
+"   It may cause collapsed highlighting at large fenced code block.
+" let g:markdown_minlines = 100
 
 " background plugins
 packadd! commentary         "Tim Pope's commentary.vim
@@ -307,7 +283,7 @@ packadd! mundo                   "undo tree plugin (fork of gundo) REQ's Python
 "let g:mundo_width = 60          "default: 45
 "let g:mundo_preview_height = 40 "default: 15
 "let g:mundo_right = 1           "default: 0 (off, open's on left)
-"<leader>m mapped to toggle
+"mapping: <leader>m mapped to toggle
 "
 packadd! nerdtree           "NerdTree File Browser for vim
 if has('win32')
@@ -317,31 +293,69 @@ endif
 let g:NERDTreeAutoDeleteBuffer=1 "auto bd on file delete/rename
 let g:NERDTreeShowBookmarks=1   "show bookmarks by default
 let g:NERDTreeShowHidden=1      "show hidden (i.e., "dot files")
-" <leader>n mapped to toggle
+"mapping: <leader>n mapped to toggle
 "
-let g:airline_powerline_fonts = 1 "use powerline symbols (only available for some fonts)
 packadd! airline            "fancy status/tabline for vim
-if !has('gui_running')
+" use powerline fonts for gui vim
+if has('gui_running')
+    let g:airline_powerline_fonts = 1 "use powerline symbols (only available for some fonts)
+else
     let g:airline_powerline_fonts = 0 "don't use powerline symbols (only available for some fonts)
     let g:airline_symbols_ascii = 1   "use plain ascii symbols
 endif
+" don't display encoding if utf-8
+call airline#parts#define_condition('ffenc', '&fenc !~? "utf-8"')
+" only display SPELL indicator in wide windows
+" call airline#parts#define_condition('spell', 'str2nr(&columns) > 100')
+call airline#parts#define_condition('spell', 'getwininfo(win_getid())[0].width > 100')
+" let g:airline#parts#ffenc#skip_expected_string='utf-8[dos]' "ignore if utf8 (windows)
+" if has('linux')
+"     let g:airline#parts#ffenc#skip_expected_string='utf-8[unix]' " ignore if uf8 (linux)
+" endif
+" abbreviate text for each mode
+let g:airline_mode_map = {
+    \ '__'     : '-',
+    \ 'c'      : 'C',
+    \ 'i'      : 'I',
+    \ 'ic'     : 'IC',
+    \ 'ix'     : 'IX',
+    \ 'n'      : 'N',
+    \ 'multi'  : 'M',
+    \ 'ni'     : 'NI',
+    \ 'no'     : 'NO',
+    \ 'R'      : 'R',
+    \ 'Rv'     : 'RV',
+    \ 's'      : 'S',
+    \ 'S'      : 'SL',
+    \ ''     : 'SB',
+    \ 't'      : 'TERMINAL',
+    \ 'v'      : 'V',
+    \ 'V'      : 'VL',
+    \ ''     : 'VB',
+    \ }
+" disable displaying spelling language (saves a little space)
+let g:airline_detect_spelllang=0
+" show word count for text-based file types
+let g:airline#extensions#wordcount#filetypes =
+    \ ['asciidoc', 'help', 'mail', 'markdown', 'org', 'plaintex', 'rst', 'tex', 'text']
 "
+" display buffer number instead of hunks/branch info
 " let g:airline_section_b = airline#section#create_left(['[%n]']) "buffer # (no hunks, branch)
-let g:airline_section_y = airline#section#create_right(['ffenc','[%b][0x%B]']) "add charcodes
-let g:airline#parts#ffenc#skip_expected_string='utf-8[dos]' "ignore if utf8 (windows)
-if has('linux')
-    let g:airline#parts#ffenc#skip_expected_string='utf-8[unix]' " ignore if uf8 (linux)
-endif
-" let g:airline_extensions = []         "disable all airlie extensions
-" let g:airline_statusline_ontop = 1	"experimental feature (failed for me)
-" let g:airline#extensions#tabline#enabled = 1 "show buffs in tabline (disables go+=e)
-" <leader>_ mapped to toggle Whitespace checking and <leader>- to toggle Airline
+
+" call airline#parts#define_function('charcodes', 'AirlineGetCharCodes')
+" function! AirlineGetCharCodes()
+"     return '"[%3b][0x%02B]"'
+" endfunction
+" let g:airline_section_y = airline#section#create_right(['ffenc', "charcodes"]) "add charcodes
+
+let g:airline_section_y = airline#section#create_right(['ffenc','[%3b|x%02B]']) "add charcodes
 "
-"Terminal Plugins
-if !has('gui_running')
-    "for console vim
-    " packadd! terminus   "Changes cursor, mouse, etc. for terminal vim
-endif
+" skip whitespace checks per filetype
+" checks:  [ 'indent', 'trailing', 'long', 'mixed-indent-file', " 'conflicts' ]
+" let g:airline#extensions#whitespace#skip_indent_check_ft = {'markdown': ['trailing']}
+  " Use ['all'] to enable for all filetypes.
+"
+"mapping: <leader>_ mapped to toggle Whitespace checking and <leader>- to toggle Airline
 "
 "Colorscheme Plugins
 packadd! ScrollColors       "Scroll through color schemes
@@ -363,8 +377,9 @@ packadd! midrange       "midrange color schemes
 "MAPPINGS {{{1
 "=======================================================
 " Leader settings (<leader>, <localleader>)
-:let mapleader = '\'
-:let maplocalleader = '-'
+:let mapleader = ','
+:let maplocalleader = '\'
+nnoremap <BS> ,
 "
 "ex mode isn't very useful, make Q repeat last macro
 nnoremap Q @@
@@ -377,18 +392,21 @@ cnoremap <C-a> <Home>
 cnoremap <C-e> <End>
 "
 "FKeys Mapping
+"
+"   Terminal Mappings
 if has('win32')
     nnoremap <F2> :set shell=cmd.exe<CR>:set shellcmdflag&<CR>:set shellquote&<CR>:set shellxquote&<CR>:set shellpipe&<CR>:set shellredir&<CR>:echo "[Shell: CMD]"<CR>
     "see https://robindouglas.uk/powershell/vim/2018/04/05/PowerShell-with-Vim.html
-    "set shell=powershell.exe
-    "set shellcmdflag=-NoProfile\ -NoLogo\ -NonInteractive\ -Command
-    "set shellpipe=| " works with '>', not with '\\|'
-    "set shellredir=>
-    nnoremap <F3> :set shell=powershell.exe<CR>:set shellcmdflag=-NoProfile\ -NoLogo\ -NonInteractive\ -Command<CR>:set shellquote=\"<CR>:set shellxquote=<CR>:set shellpipe=><CR>:set shellredir=><CR>:echo "[Shell: Powershell]"<CR>
+    " use pwsh.exe for powershell 6 and above
+    nnoremap <F3> :set shell=pwsh.exe<CR>:set shellcmdflag=-NoProfile\ -NoLogo\ -NonInteractive\ -Command<CR>:set shellquote=\"<CR>:set shellxquote=<CR>:set shellpipe=><CR>:set shellredir=><CR>:echo "[Shell: Powershell]"<CR>
+    " use `powershell.exe` for powershell 5
+    " nnoremap <F3> :set shell=powershell.exe<CR>:set shellcmdflag=-NoProfile\ -NoLogo\ -NonInteractive\ -Command<CR>:set shellquote=\"<CR>:set shellxquote=<CR>:set shellpipe=><CR>:set shellredir=><CR>:echo "[Shell: Powershell]"<CR>
     "see https://vim.fandom.com/wiki/Use_cygwin_shell
     nnoremap <F4> :set shell=C:\cygwin64\bin\bash.exe<CR>:set shellcmdflag=--login\ -c<CR>:set shellquote&<CR>:set shellxquote=\"<CR>:set shellpipe&<CR>:set shellredir&<CR>:echo "[Shell: Cygwin]"<CR>
     "<CR>:set shellslash<CR>:set shellxquote=\"<CR>let $PATH .= ';C:\cygwin64\bin'<CR>
 endif
+"
+"   Color Scheme Mappings
 nnoremap <F5> :colorscheme gruvbox<CR>:echo g:colors_name<CR>
 nnoremap <F6> :colorscheme one<CR>:echo g:colors_name<CR>
 nnoremap <F7> :colorscheme Kafka<CR>:echo g:colors_name<CR>
@@ -397,6 +415,7 @@ nnoremap <F8> :call NextColor(1)<CR>
 nnoremap <S-F8> :call NextColor(-1)<CR>
 nnoremap <A-F8> :call NextColor(0)<CR>
 "
+"   Font Mappings
 nnoremap <F9> :set guifont=Hack:h9:cDEFAULT<CR>
 nnoremap <S-F9> :set guifont=Iosevka_Extended:h10:cDEFAULT<CR>
 nnoremap <F10> :set guifont=JetBrains_Mono:h9:cDEFAULT<CR>
@@ -412,10 +431,11 @@ nnoremap <silent> <leader>l :set list!<CR>:set list?<CR>
 " Vimcast Shortcut to rapidly toggle 'spelling'
 " nnoremap <silent> <leader>s :set invspell<CR>:set spell?<CR>
 "
-" Vimcast :Bubbling Text
-" Visually select the text that was last edited/pasted
-" (NOTE if need to bubble through folds get/use upAndDown.vim plugin)
+" Select previously changed or yanked text
 noremap gV `[v`]
+"
+" Vimcast :Bubbling Text
+" (NOTE if need to bubble through folds get/use upAndDown.vim plugin)
 " Bubble single lines (NOTE: requires unimpaired.vim)
 map <C-UP> [e
 map <C-DOWN> ]e
@@ -428,10 +448,10 @@ vmap <C-DOWN> ]egv
 " note: %% now allows expansion of the current file directory
 "   ew (edit in window); es/ev (edit in split/vertical-split); et (edit in tab)
 cnoremap %% <C-R>=fnameescape(expand('%:h')).'/'<CR>
-noremap <leader>ew :e <C-R>=fnameescape(expand('%:h')).'/'<CR>
-noremap <leader>es :sp <C-R>=fnameescape(expand('%:h')).'/'<CR>
-noremap <leader>ev :vsp <C-R>=fnameescape(expand('%:h')).'/'<CR>
-noremap <leader>et :tabe <C-R>=fnameescape(expand('%:h')).'/'<CR>
+nnoremap <leader>ew :e <C-R>=fnameescape(expand('%:h')).'/'<CR>
+nnoremap <leader>es :sp <C-R>=fnameescape(expand('%:h')).'/'<CR>
+nnoremap <leader>ev :vsp <C-R>=fnameescape(expand('%:h')).'/'<CR>
+nnoremap <leader>et :tabe <C-R>=fnameescape(expand('%:h')).'/'<CR>
 "
 "Scratch Mappings
 nnoremap <leader>s :Scratch<CR>
@@ -443,7 +463,6 @@ nnoremap <leader><C-P> :CtrlPLine<CR>
 "
 "Create shortcut combining :NERDTreeFind and :NERDTreeToggle functionality
 nnoremap <silent> <expr> <leader>n g:NERDTree.IsOpen() ?  "\:NERDTreeClose<CR>" : bufexists(expand('%')) ? "\:NERDTreeFind<CR>" : "\:NERDTree<CR>"
-"nnoremap <silent> <expr> <leader>n g:NERDTree.IsOpen() ?  "\:NERDTreeClose<CR>" : bufexists(expand('%')) ? "\:NERDTreeFind<CR>" : "\:NERDTree<CR>"
 "
 "Mundo Toggle
 nnoremap <leader>m :MundoToggle<CR>
@@ -452,11 +471,101 @@ nnoremap <leader>m :MundoToggle<CR>
 nnoremap <leader>- :AirlineToggle<CR>
 nnoremap <leader>_ :AirlineToggleWhitespace<CR>
 "
+"New {{{1
+"=======================================================
+highlight Terminal guibg=darkblue
+nnoremap <leader>ve :split $MYVIMRC<CR>
+nnoremap <leader>vs :source $MYVIMRC<CR>
+nnoremap <C-H> 0
+nnoremap <C-L> $
+inoremap <S-Up> <ESC>gUiwgi
+inoremap <S-Down> <ESC>guiwgi
+inoremap <C-Up> <ESC>guiw~gi
+inoremap <C-Down> <ESC>guiw~gi
+inoremap jk <ESC>
+inoremap fd <C-O>
+" inoremap <ESC> <NOP>
+nnoremap <leader># :execute "rightbelow split " . bufname("#")<CR>
+" nnoremap <silent> <leader><leader> :nohlsearch<CR>
+nnoremap <silent> <leader><leader> :let v:hlsearch = (v:hlsearch) ? 0 : 1<CR>
+nnoremap <silent> <leader>w :2match Error /\v\s+$/<CR>
+nnoremap <silent> <leader>W :2match none<CR>
+nnoremap <leader>1 :setlocal foldlevel=1<CR>
+nnoremap <leader>2 :setlocal foldlevel=2<CR>
+nnoremap <leader>3 :setlocal foldlevel=3<CR>
+nnoremap <leader>0 :setlocal foldlevel=0<CR>
+"
+iabbrev teh the
+iabbrev ->;; →
+iabbrev =>;; ⇒
+iabbrev SE;; §
+abbrev <expr> d;; strftime("%Y-%m-%d")
+abbrev <expr> D;; '['.strftime("%Y-%m-%d").']'
+abbrev <expr> pwd;; fnameescape(expand('%:p:h'))
+abbrev <expr> pwd__ fnameescape(expand('%:p:h'))
+abbrev <expr> f;; fnamemodify(browse(0, 'File Path', '%:p:h', ''), ':p')
+abbrev <expr> F;; '"' . fnamemodify(browse(0, 'File Path', '%:p:h', ''), ':p') . '"'
+nnoremap <leader>ur :call UltiSnips#RefreshSnippets()<CR>
+"
+let g:potion_command = "/home/pi/potion/bin/potion"
+"
+" Mapped Functions {{{1
+"=======================================================
+" toggle quickfix window
+nnoremap <silent> <leader>q :call <SID>QuickfixToggle()<CR>
+function! s:QuickfixToggle()
+    let quickfixtoggle_previous_window_id = win_getid()
+    let win_info = getwininfo()
+    cclose
+    "
+    " copen if cclose did nothing
+    if win_info ==# getwininfo()
+        let g:quickfixtoggle_copen_window_id = win_getid()
+        copen
+    " go to correct window if cclose worked
+    else
+        " try to restore to previous window location
+        " if previous window was quickfix go to window when toggle opened
+        if !win_gotoid(quickfixtoggle_previous_window_id)
+            if exists("g:quickfixtoggle_copen_window_id")
+                call win_gotoid(g:quickfixtoggle_copen_window_id)
+            endif
+        endif
+    endif
+endfunction
+"
+nnoremap <silent> <leader>f :call <SID>FoldColumnToggle()<CR>
+" toggle fold columns
+function! s:FoldColumnToggle()
+    let &l:foldcolumn = (&l:foldcolumn) ? 0 : 3
+endfunction
+" nnoremap <silent> <expr> <leader>F (&l:foldcolumn) ? ":set fdc=0<CR>" : "set fdc=3<CR>"
+"
+" toggle `help` and `text` filetypes for current buffer
+" nnoremap <silent> <leader>d :call <SID>HelpToTextToggle()<CR>
+" function! s:HelpToTextToggle()
+"     let &filetype = !(&filetype ==# 'help') ? 'help' : 'text'
+" endfunction
+"
+" create an Ex-command to quickly browse a filtered list of oldfiles
+command -nargs=? -bang BFilterOldfiles call <SID>BrowseFilterOldfiles(<q-args>, !empty('<bang>'), '<mods>')
+function! s:BrowseFilterOldfiles(filter_pattern, is_split, mods)
+    let bname = bufname()
+    execute 'browse filter /\c' . a:filter_pattern . '/ oldfiles'
+    "if ! used and buffer changed, split buffer and use <mods>
+    if a:is_split && bname != bufname()
+        execute "normal! \<C-^>"
+        silent execute "normal! :" . a:mods . " sbuffer #\<CR>"
+    endif
+endfunction
+
+
+
 "MISCELLANEOUS {{{1
 "=======================================================
-" The following beast is something i didn't write... it will return the
-" syntax highlighting group that the current "thing" under the cursor
-" belongs to -- very useful for figuring out what to change as far as
+" DEREK WYATT: The following beast is something i didn't write... it will
+" return the syntax highlighting group that the current "thing" under the
+" cursor belongs to -- very useful for figuring out what to change as far as
 " syntax highlighting goes.
 nnoremap <silent> <leader><C-S> :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name")
      \ . '> trans<' . synIDattr(synID(line("."),col("."),0),"name")
@@ -471,7 +580,7 @@ function! <SID>SynStack()
     return
   endif
   echo map(synstack(line('.'), col('.')), 'synIDattr(v:val, "name")')
-endfunc
+endfunction
 "
 " " Vimcast :Wrap command (:set wrap linebreak nolist)
 " command! -nargs=* Wrap set wrap linebreak nolist
@@ -480,6 +589,7 @@ endfunc
 "" Credit: Siddhant
 ""open explorer in the current file's directory
 "noremap <leader>e :!start explorer %:p:h:8<cr>
+noremap <leader>EE :set nossl<CR>:!start explorer %:p:h:8<CR>:set ssl<CR><ESC>
 ""open windows command prompt in the current file's directory
 "noremap <leader>c :!start cmd /k cd %:p:h:8<cr>
 ""open cygwin bash in the current file's directory
