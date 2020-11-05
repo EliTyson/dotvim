@@ -36,5 +36,5 @@ Matt noted in the comments that when you follow this method, generating helptags
         [submodule "bundle/fugitive"]
             path = bundle/fugitive
             url = git://github.com/tpope/vim-fugitive.git
-            ignore = untracked
+            ignore = dirty
 
