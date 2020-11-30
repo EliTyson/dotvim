@@ -25,7 +25,7 @@ CONTENTS                                                      *PotionContents*
 ==============================================================================
 1: Usage                                                         *PotionUsage*
 
-This plugin with automatically provide syntax highlighting for
+This plugin will automatically provide syntax highlighting for
 Potion files (files ending in .pn).
 
 It also automatically folds Potion files. Folding is based on indent level

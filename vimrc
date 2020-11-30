@@ -1,7 +1,7 @@
 " vim: foldmethod=marker
 set encoding=utf-8      "if encounter 'CONVERSION ERROR' use ':w ++enc=utf-8'
 scriptencoding utf-8
-set pythonthreedll=python38.dll "was defaulting to python37.dll
+set pythonthreedll=python39.dll "was defaulting to python37.dll
 "
 "--------------
 "   MY VIMRC   "
@@ -54,17 +54,24 @@ set wildignore+=*.mp4,*.mkv,*.m4a,*.mka,*.wav,*.aac,*.ffindex,*.pdf,*.jpg,*.gif,
 set printoptions+=number:y              "default is (number:n ⇒ no line numbers)
 set printoptions+=left:5pc              "default is (left:10pc,right:5pc,top:5pc,bottom:5pc)
 " let &printfont = &guifont        "print using the same font as guifont
-if has('win32')
+if has('win32') || has('win32unix')
     set path+=$HOME,$HOME/Desktop             "set path to search for find commands
     cd $HOME/Desktop                        "sets current directory
     " set shell=<path to shell>               "use alternate shell
-    set shell=pwsh.exe shellcmdflag=-NoProfile\ -NoLogo\ -NonInteractive\ -Command
-    set shellquote=\" shellxquote= shellpipe=> shellredir=>
+    " set shell=pwsh.exe shellcmdflag=-NoProfile\ -NoLogo\ -NonInteractive\ -Command
+    " set shellquote=\" shellpipe=> shellredir=> shellxquote=
     set viewdir=$HOME/vimfiles/views//        "sets directory to save views
     set directory=$HOME/AppData/Roaming/Vim// "sets file directory (used for swap files)
     set backupdir=$HOME/AppData/Roaming/Vim// "sets directory for write backups
     set undodir=$HOME/AppData/Roaming/Vim//   "sets directory for undo files
     set viminfofile=$HOME/AppData/Roaming/Vim/_viminfo "sets file name for viminfo
+endif
+if has('win32unix')
+    set packpath^=$HOME/vimfiles//             "sets directory to save views
+    set packpath+=/c/Program\ Files\ (x86)/Vim/vim82//
+    let $VIMRUNTIME = '/c/Program Files (x86)/Vim/vim82' "for syntax.vim
+    let $VIM = '/c/Program Files (x86)/Vim'
+    set runtimepath^=/c/Program\ Files\ (x86)/Vim/vim82
 endif
 if has('gui_running')
     " set lines=99 columns=999 "maximize window
@@ -76,7 +83,7 @@ endif
 "
 "INTERFACE {{{1
 "=======================================================
-try|colorscheme gruvbox|catch|colorscheme evening|endtry
+try|colorscheme gruvbox|catch|try|colorscheme evening|catch|endtry|endtry
 try|set guifont=Hack:h9:cDEFAULT|catch|endtry    "good programming font with decent utf support
 "set t_Co=256                   "256 color mode; rec'd for  Vim over SSH
 set splitbelow                  "(sb/nosb) new split below
@@ -219,21 +226,58 @@ augroup filetype_vim
     autocmd FileType vim setlocal foldmethod=marker "unnecessary if use modelines
 augroup END
 "
+augroup filetype_git
+    autocmd!
+    autocmd FileType gitconfig setlocal textwidth=72
+    autocmd FileType gitconfig setlocal formatoptions+=t   " auto wrap/format
+    autocmd FileType gitconfig setlocal colorcolumn=72
+    autocmd FileType gitcommit setlocal list
+"
+    autocmd FileType gitcommit setlocal textwidth=72
+    autocmd FileType gitcommit setlocal formatoptions+=t   " auto wrap/format
+    autocmd FileType gitcommit setlocal colorcolumn=72
+    autocmd FileType gitcommit setlocal list
+augroup END
+"
 "PACKAGES/PLUGINS {{{1
 "=======================================================
 "Core Plugins
 " trial plugins
 " packadd! hexokinase
 "
+packadd! ale
+let g:ale_use_global_executables = 1 "make ALE use global executables
+let g:ale_hover_cursor = 0 "hover functionality (echo line)
+" let g:ale_set_balloons = 1   "balloon info if ale_hover_cursor=1
+" g:ale_completion_enabled = 0 "enable ale completion
+    " Fix Python files with 'bar'.
+    " Don't fix 'html' files.
+    " Fix everything else with 'foo'.
+" let g:ale_fixers = {'python': ['bar'], 'html': [], '*': ['foo']}
+" let g:ale_list_window_size = 10 "10 is default loc size
+" let g:ale_linters = {'javascript': ['eslint']} "(merged with defaults)
+" let g:ale_update_tagstack = 0 "default: 1; 0 to disable.
+"
+"ALE mappings
+nnoremap <leader>a :ALEToggleBuffer<CR>
+" nnoremap <leader>ad :ALEDetail<CR>
+" nnoremap <leader>A :ALEToggle<CR>
+""
 packadd! fugitive
-packadd! ultisnips
+if !has('win32unix')
+    packadd! ultisnips
+endif
 packadd! indent-guides
+let g:indent_guides_start_level = 2
+let g:indent_guides_guide_size = 0  "set to 1, for vertical lines
+let g:indent_guides_color_change_percent = 5
+"
+"mapping: <leader>i mapped to ':IndentGuidesToggle'
 packadd! colorizer
+"mapping: <leader>c mapped to ':ColorHighlight'
 packadd! scratch
 "mapping: <leader>s mapped to open Scratch buffer
-" packadd! loupe              "(1)center,underline; (2)\v default; (3)sets some defaults
-" let g:LoupeClearHighlightMap = 0    "prevent nohls mapping to leader-n
-" let g:LoupeVeryMagic = 0            " disable auto '\v'
+"
 "Terminal Plugins
 if !has('gui_running')
     " for console vim
@@ -293,6 +337,10 @@ endif
 let g:NERDTreeAutoDeleteBuffer=1 "auto bd on file delete/rename
 let g:NERDTreeShowBookmarks=1   "show bookmarks by default
 let g:NERDTreeShowHidden=1      "show hidden (i.e., "dot files")
+let g:NERDTreeMinimalUI=1        "disable '? for help'
+let g:NERDTreeDirArrowExpandable="▸" "instead of '+'
+let g:NERDTreeDirArrowCollapsible="▾" "instead of '~'
+let g:NERDTreeAutoDeleteBuffer=1 " Auto delete the buffer of deleted file
 "mapping: <leader>n mapped to toggle
 "
 packadd! airline            "fancy status/tabline for vim
@@ -313,6 +361,8 @@ call airline#parts#define_condition('spell', 'getwininfo(win_getid())[0].width >
 "     let g:airline#parts#ffenc#skip_expected_string='utf-8[unix]' " ignore if uf8 (linux)
 " endif
 " abbreviate text for each mode
+" 'ic' ⇒ i_CTRL-N; 'ix' ⇒ i_CTRL-X; 'ni' ⇒ i_CTRL-O; 'Rv' ⇒ gR
+" 'no' ⇒ v_gr CTRL-C;
 let g:airline_mode_map = {
     \ '__'     : '-',
     \ 'c'      : 'C',
@@ -380,6 +430,10 @@ packadd! midrange       "midrange color schemes
 :let mapleader = ','
 :let maplocalleader = '\'
 nnoremap <BS> ,
+"
+" use visual rather than linewise up/down (except with counts)
+noremap <expr> j (v:count ? 'j' : 'gj')
+noremap <expr> k (v:count ? 'k' : 'gk')
 "
 "ex mode isn't very useful, make Q repeat last macro
 nnoremap Q @@
@@ -453,6 +507,16 @@ nnoremap <leader>es :sp <C-R>=fnameescape(expand('%:h')).'/'<CR>
 nnoremap <leader>ev :vsp <C-R>=fnameescape(expand('%:h')).'/'<CR>
 nnoremap <leader>et :tabe <C-R>=fnameescape(expand('%:h')).'/'<CR>
 "
+"UltiSnips Mappings
+nnoremap <leader>ue :UltiSnipsEdit<CR>
+nnoremap <leader>ur :call UltiSnips#RefreshSnippets()<CR>
+"
+"Indent-Guides Mappings
+nnoremap <leader>i :IndentGuidesToggle<CR>
+
+"Colorizer Mappings
+nnoremap <leader>c :ColorToggle<CR>
+
 "Scratch Mappings
 nnoremap <leader>s :Scratch<CR>
 nnoremap <leader>S :ScratchPreview<CR>
@@ -471,9 +535,10 @@ nnoremap <leader>m :MundoToggle<CR>
 nnoremap <leader>- :AirlineToggle<CR>
 nnoremap <leader>_ :AirlineToggleWhitespace<CR>
 "
+"
 "New {{{1
 "=======================================================
-highlight Terminal guibg=darkblue
+highlight Terminal guibg=#012456
 nnoremap <leader>ve :split $MYVIMRC<CR>
 nnoremap <leader>vs :source $MYVIMRC<CR>
 nnoremap <C-H> 0
@@ -505,7 +570,6 @@ abbrev <expr> pwd;; fnameescape(expand('%:p:h'))
 abbrev <expr> pwd__ fnameescape(expand('%:p:h'))
 abbrev <expr> f;; fnamemodify(browse(0, 'File Path', '%:p:h', ''), ':p')
 abbrev <expr> F;; '"' . fnamemodify(browse(0, 'File Path', '%:p:h', ''), ':p') . '"'
-nnoremap <leader>ur :call UltiSnips#RefreshSnippets()<CR>
 "
 let g:potion_command = "/home/pi/potion/bin/potion"
 "
@@ -542,10 +606,12 @@ endfunction
 " nnoremap <silent> <expr> <leader>F (&l:foldcolumn) ? ":set fdc=0<CR>" : "set fdc=3<CR>"
 "
 " toggle `help` and `text` filetypes for current buffer
-" nnoremap <silent> <leader>d :call <SID>HelpToTextToggle()<CR>
-" function! s:HelpToTextToggle()
-"     let &filetype = !(&filetype ==# 'help') ? 'help' : 'text'
-" endfunction
+nnoremap <silent> <leader><F1> :call <SID>HelpToTextToggle()<CR>
+function! s:HelpToTextToggle()
+    if &filetype =~# '\vhelp|text' || &filetype ==# ''
+        let &filetype = !(&filetype ==# 'help') ? 'help' : 'text'
+    endif
+endfunction
 "
 " create an Ex-command to quickly browse a filtered list of oldfiles
 command -nargs=? -bang BFilterOldfiles call <SID>BrowseFilterOldfiles(<q-args>, !empty('<bang>'), '<mods>')
@@ -589,7 +655,7 @@ endfunction
 "" Credit: Siddhant
 ""open explorer in the current file's directory
 "noremap <leader>e :!start explorer %:p:h:8<cr>
-noremap <leader>EE :set nossl<CR>:!start explorer %:p:h:8<CR>:set ssl<CR><ESC>
+noremap <leader>EE :set noshellslash<CR>:!start explorer %:p:h:8<CR>:set shellslash<CR><ESC>
 ""open windows command prompt in the current file's directory
 "noremap <leader>c :!start cmd /k cd %:p:h:8<cr>
 ""open cygwin bash in the current file's directory

@@ -50,3 +50,7 @@
 	path = pack/Core/opt/exchange
 	url = https://github.com/tommcdo/vim-exchange.git
 	ignore = dirty
+[submodule "pack/Core/opt/fugitive"]
+	path = pack/Core/opt/fugitive
+	url = https://github.com/tpope/vim-fugitive.git
+	ignore = dirty
