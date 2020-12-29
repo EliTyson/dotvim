@@ -49,8 +49,8 @@ set shellslash                            "force forward slash for expanded file
 set history=100                           "command line history (Default:50)
 " set undolevels=1000                       "(ul) Max # of undos (Default: 10000)
 "don't expand these filetypes
-set wildignore+=*\^ntuser.*,*\Web\*,*\AppData\*,*.dat,*.ini,*.exe
-set wildignore+=*.mp4,*.mkv,*.m4a,*.mka,*.wav,*.aac,*.ffindex,*.pdf,*.jpg,*.gif,*.png
+set wildignore+=*\^ntuser.*,*\Web\*,*\AppData\*,*.dat,*.ini,*.exe,*.ffindex
+" set wildignore+=*.mp4,*.mkv,*.m4a,*.mka,*.wav,*.aac,*.pdf,*.jpg,*.gif,*.png
 set printoptions+=number:y              "default is (number:n ⇒ no line numbers)
 set printoptions+=left:5pc              "default is (left:10pc,right:5pc,top:5pc,bottom:5pc)
 " let &printfont = &guifont        "print using the same font as guifont
@@ -246,24 +246,30 @@ augroup END
 " packadd! hexokinase
 "
 packadd! ale
-let g:ale_use_global_executables = 1 "make ALE use global executables
+let g:ale_use_global_executables = 1 "force global executables
 let g:ale_hover_cursor = 0 "hover functionality (echo line)
 " let g:ale_set_balloons = 1   "balloon info if ale_hover_cursor=1
 " g:ale_completion_enabled = 0 "enable ale completion
     " Fix Python files with 'bar'.
     " Don't fix 'html' files.
     " Fix everything else with 'foo'.
-" let g:ale_fixers = {'python': ['bar'], 'html': [], '*': ['foo']}
-" let g:ale_list_window_size = 10 "10 is default loc size
-" let g:ale_linters = {'javascript': ['eslint']} "(merged with defaults)
+let g:ale_linters = {'python': ['flake8', 'pylint'],} " ['pylint']
+let g:ale_echo_msg_format = '[%linter%:%severity%] %code: %%s'
+" let g:ale_linters_ignore = {'python': ['pylint'],}
+" let g:ale_open_list = 1 "will cause ALE to auto open loclist
+" g:ale_lint_on_text_changed=0
+" g:ale_lint_on_insert_leave=0
+" g:ale_lint_on_enter=0
+" g:ale_lint_on_save=0
+" g:ale_lint_on_filetype_changed=0
+let g:ale_fixers = {'*': ['remove_trailing_lines', 'trim_whitespace'],}
 " let g:ale_update_tagstack = 0 "default: 1; 0 to disable.
-"
 "ALE mappings
 nnoremap <leader>a :ALEToggleBuffer<CR>
 " nnoremap <leader>ad :ALEDetail<CR>
+" nnoremap <leader>af :ALEFix<CR>
 " nnoremap <leader>A :ALEToggle<CR>
 ""
-packadd! fugitive
 if !has('win32unix')
     packadd! ultisnips
 endif
@@ -315,6 +321,9 @@ packadd! visual-star-search "enables */# searches on visual selections
 packadd! traces             "previews of ranges and substitutions
 "
 " visible plugins
+"
+packadd! fugitive
+"
 packadd! ctrlp              "ctrlp.vim fuzzy file finder
 if has('win32')
     let g:ctrlp_cache_dir =$HOME.'/AppData/Roaming/Vim/ctrlp_cache//'       " sets cache dir
@@ -480,7 +489,7 @@ nnoremap <S-F11> :set guifont=mononoki:h10:cDEFAULT<CR>
 " nnoremap <F11> :set guifont=Source_Code_Pro:h9:cDEFAULT<CR>
 "
 " Vimcast Shortcut to rapidly toggle 'set list'
-nnoremap <silent> <leader>l :set list!<CR>:set list?<CR>
+nnoremap <silent> <leader>L :set list!<CR>:set list?<CR>
 "
 " Vimcast Shortcut to rapidly toggle 'spelling'
 " nnoremap <silent> <leader>s :set invspell<CR>:set spell?<CR>
@@ -538,6 +547,17 @@ nnoremap <leader>_ :AirlineToggleWhitespace<CR>
 "
 "New {{{1
 "=======================================================
+"
+nnoremap [<C-L> :lbefore<CR>
+" nnoremap [<A-L> :labove<CR>
+nnoremap ]<C-L> :lafter<CR>
+" nnoremap ]<A-L> :lbelow<CR>
+"
+nnoremap [<C-C> :cbefore<CR>
+" nnoremap [<A-C> :cabove<CR>
+nnoremap ]<C-C> :cafter<CR>
+" nnoremap ]<A-C> :cbelow<CR>
+"
 highlight Terminal guibg=#012456
 nnoremap <leader>ve :split $MYVIMRC<CR>
 nnoremap <leader>vs :source $MYVIMRC<CR>
@@ -551,7 +571,6 @@ inoremap jk <ESC>
 inoremap fd <C-O>
 " inoremap <ESC> <NOP>
 nnoremap <leader># :execute "rightbelow split " . bufname("#")<CR>
-" nnoremap <silent> <leader><leader> :nohlsearch<CR>
 nnoremap <silent> <leader><leader> :let v:hlsearch = (v:hlsearch) ? 0 : 1<CR>
 nnoremap <silent> <leader>w :2match Error /\v\s+$/<CR>
 nnoremap <silent> <leader>W :2match none<CR>
@@ -593,6 +612,29 @@ function! s:QuickfixToggle()
         if !win_gotoid(quickfixtoggle_previous_window_id)
             if exists("g:quickfixtoggle_copen_window_id")
                 call win_gotoid(g:quickfixtoggle_copen_window_id)
+            endif
+        endif
+    endif
+endfunction
+"
+" toggle location list window
+nnoremap <silent> <leader>ll :call <SID>LocationListToggle()<CR>
+function! s:LocationListToggle()
+    let loclist_toggle_previous_window_id = win_getid()
+    let win_info = getwininfo()
+    lclose
+    "
+    " lopen if lclose did nothing
+    if win_info ==# getwininfo()
+        let g:loclist_toggle_copen_window_id = win_getid()
+        lopen
+    " go to correct window if lclose worked
+    else
+        " try to restore to previous window location
+        " if previous window was loclist go to window when toggle opened
+        if !win_gotoid(loclist_toggle_previous_window_id)
+            if exists("g:loclist_toggle_copen_window_id")
+                call win_gotoid(g:loclist_toggle_copen_window_id)
             endif
         endif
     endif
