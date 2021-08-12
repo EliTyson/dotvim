@@ -113,7 +113,7 @@ syntax match avisynthNumber "\v([+-])?(\k)@<!\d+(\.\d+)?"
 syntax match avisynthNumber "\v\$\x+"
 highlight link avisynthNumber Number
 
-syntax keyword avisynthBoolean true false yes no
+syntax keyword avisynthBoolean true false yes no True False Yes No TRUE FALSE YES NO
 highlight link avisynthBoolean Boolean
 
 syntax region avisynthString start=/\v"/ skip=/\v\\./ end=/\v"/

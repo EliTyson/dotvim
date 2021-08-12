@@ -3,26 +3,25 @@ xnoremap <silent> <leader>g :<C-U>call <SID>GrepOperator(visualmode())<CR>
 
 " Grep Operator Function
 function! s:GrepOperator(type)
-    " save unnamed register
+    " Save unnamed register
     let saved_unnamed_register = @@
-    " save 'selection' setting
+    " Save 'selection' setting
     let sel_save = &selection
-    " temporarily set 'selection' to inclusive (default)
+    " Temporarily set 'selection' to inclusive (default)
     let &selection = "inclusive"
 
     " Copying visually selected text to Grep
     if a:type ==# 'v' && line("'<") ==# line("'>")
         " copy visually selected text
         normal! `<v`>y
-
     " Copying motion selected text to Grep
     elseif a:type ==# 'char' && line("'[") ==# line("']")
-        " save last visual selection
+        " Save last visual selection
         let v_mode = visualmode()
         let saved_visual_start_mark = getpos("'<")
         let saved_visual_end_mark = getpos("'>")
 
-        " copy text that was operated on
+        " Copy text that was operated on
         normal! `[v`]y
 
         " Restore the visual mode to (line or blockwise)
@@ -31,7 +30,7 @@ function! s:GrepOperator(type)
         elseif v_mode ==# "\<C-V>"
             silent execute "normal \<C-V>\<ESC>"
         endif
-        " restore last visual selection
+        " Restore last visual selection
         call setpos("'<", saved_visual_start_mark)
         call setpos("'>", saved_visual_end_mark)
     " Return if no text to grep
@@ -41,18 +40,33 @@ function! s:GrepOperator(type)
         return
     endif
 
-    " use grep if available
+    " Use grep if available. Change default 'grepprg' if needed.
     if executable('grep') == 1   "executable() returns '-1' for 'not implemented...'
         let &g:grepprg='grep -n'
-        silent execute "grep! -R " . shellescape(@@, 1) . " %:p:h/*"
-        redraw
-        copen
-    " use findstr as fallback
+        " silent execute "grep! -R " . shellescape(@@, 1) . " %:p:h/*"
+        if has('win32') && &shell =~? '\v^cmd.exe|command.exe'
+            silent execute 'grep! -R ^"' . escape(substitute(escape(@@, '\"^<>()'), '\', '\\^', 'g'), '!%#')  . '^" ./*'
+            redraw
+            copen
+        else
+            silent execute "grep! -R " . shellescape(@@, 1) . " ./*"
+            redraw
+            copen
+        endif
+
+    " Use findstr as fallback
     elseif executable('findstr') == 1   "executable() returns '-1' for 'not implemented...'
         let &g:grepprg='findstr /n'
-        silent execute 'grep! /SC:^"' . escape(substitute(escape(@@, '\"^<>()'), '\', '\\^', 'g'), '!%#')  . '^" %:p:h/*'
-        redraw
-        copen
+        if has('win32') && &shell =~? '\v^cmd.exe|command.exe'
+            " silent execute 'grep! /SC:^"' . escape(substitute(escape(@@, '\"^<>()'), '\', '\\^', 'g'), '!%#')  . '^" %:p:h/*'
+            silent execute 'grep! /SPC:^"' . escape(substitute(escape(@@, '\"^<>()'), '\', '\\^', 'g'), '!%#')  . '^" ./*'
+            redraw
+            copen
+        else
+            silent execute "grep! /SPC:" . shellescape(@@, 1) . " ./*"
+            redraw
+            copen
+        endif
     endif
 
     " restore unnamed register

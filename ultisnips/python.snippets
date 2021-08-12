@@ -1,0 +1,79 @@
+global !p
+# global python code
+endglobal
+
+snippet script "Python script template" b
+#!/usr/bin/env python
+"""${1:Description}"""
+
+${3:import argparse
+import sys}
+$0
+
+def main():
+	"""Run file as a script."""
+${2:
+	parser = argparse.ArgumentParser(description='$1')
+	parser.add_argument('-d', '--debug', action='store_true',
+						help='Display debugging information')
+	args = parser.parse_args()
+
+	if args.debug:
+		print('Debug:', args)
+
+	sys.exit(0)}
+
+
+if __name__ == '__main__':
+	main()
+endsnippet
+
+snippet script2 "Python script template 2" b
+#!/usr/bin/env python
+"""${1:Description}"""
+
+import argparse
+import os
+import sys${2:
+
+
+def ${3:new_function}(line: str, args):
+	"""${4:New Function Description}"""
+	$0}
+
+
+def main():
+	"""Run file as a script."""
+
+	parser = argparse.ArgumentParser(description='$1')
+	parser.add_argument('-d', '--debug', action='store_true',
+						help='Display debugging information.')
+	parser.add_argument('files', type=str, nargs='*', default='-',
+						help='Input files to process.')
+	args = parser.parse_args()
+
+	if args.debug:
+		print('Debug:', args)
+
+	for filename in args.files:
+		if filename == '-':
+			for line in sys.stdin:
+				line = line.rstrip('\r\n')
+				$3(line, args)
+		elif not os.access(filename, os.F_OK):
+			print(f'$3: {filename}: No such file or directory',
+                  file=sys.stderr)
+		elif not os.access(filename, os.R_OK):
+			print(f'$3: {filename}: Not readable', file=sys.stderr)
+		else:
+			with open(filename, 'r') as infile:
+				for line in infile:
+					line = line.rstrip('\r\n')
+					$3(line, args)
+
+	sys.exit(0)
+
+
+if __name__ == '__main__':
+	main()
+endsnippet

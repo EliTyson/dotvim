@@ -11,10 +11,10 @@ if !exists("no_plugin_maps") && !exists("no_markdown_maps")
         endif
 
         let direction = (a:isForward) ? '/' : '?'
-        let section_pattern = (a:type) ? '\v%^|^#+\s|((^[=-]+[^=-]+\s*$)|(^[^=-].*))\n^[=-]+\s*$'
-                                    \ : '\v%^|^#\s|((^[=-]+[^=-]+\s*$)|(^[^=-].*))\n^[=]+\s*$'
+        let regex = (a:type) ? '\v%^|^#+\s|((^[=-]+[^=-]+\s*$)|(^[^=-].*))\n^[=-]+\s*$'
+                           \ : '\v%^|^#\s|((^[=-]+[^=-]+\s*$)|(^[^=-].*))\n^[=]+\s*$'
 
-        silent execute  'normal! ' .  section_count . direction . section_pattern . "\r"
+        silent execute  'normal! ' .  section_count . direction . regex . "\r"
 
     endfunction
 

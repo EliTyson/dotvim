@@ -30,8 +30,10 @@ function! s:AVSDissolve(frames, ...) range
     " Defaults
     let checked_frames  = (!a:frames) ? 30 : a:frames
     let video = 'v'
-    let blank_frames = 10
-    let fade_frames = 15
+    let blank_frames = checked_frames / 3
+    " let blank_frames = 10
+    let fade_frames = checked_frames / 2
+    " let fade_frames = 15
     let inner_text = ''
     let queued_fadein = ''
 
@@ -40,7 +42,7 @@ function! s:AVSDissolve(frames, ...) range
             if inner_text =~? '\v\)$'
                 let inner_text .= ", " . video . ".Trim(" . item . ")" . queued_fadein
                 let queued_fadein = ''
-            else
+            else " First clip; No comma.
                 let inner_text .= video . ".Trim(" . item . ")" .queued_fadein
                 let queued_fadein = ''
             endif
@@ -55,6 +57,7 @@ function! s:AVSDissolve(frames, ...) range
                             \ ") ++ BlankClip(" . video . ", " . blank_frames . ") ++ "
             let queued_fadein = ".FadeIn(" . fade_frames . ")"
         else
+            echohl WarningMsg | echom "Fell through if-statement" | echohl None
             let inner_text .= "ERROR: Fell through if-statements"
         endif
     endfor
