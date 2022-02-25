@@ -57,15 +57,20 @@
 [submodule "pack/Core/opt/scratch"]
 	path = pack/Core/opt/scratch
 	url = https://github.com/mtth/scratch.vim.git
+	ignore = dirty
 [submodule "pack/Core/opt/indent-guides"]
 	path = pack/Core/opt/indent-guides
 	url = https://github.com/nathanaelkane/vim-indent-guides
+	ignore = dirty
 [submodule "pack/Core/opt/ultisnips"]
 	path = pack/Core/opt/ultisnips
 	url = https://github.com/SirVer/ultisnips.git
+	ignore = dirty
 [submodule "pack/Core/opt/snippets"]
 	path = pack/Core/opt/snippets
 	url = https://github.com/honza/vim-snippets.git
+	ignore = dirty
 [submodule "pack/Core/opt/ale"]
 	path = pack/Core/opt/ale
 	url = https://github.com/dense-analysis/ale.git
+	ignore = dirty

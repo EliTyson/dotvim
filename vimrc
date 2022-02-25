@@ -44,6 +44,8 @@ endfunction
 
 "GENERAL {{{1
 "=======================================================
+filetype plugin indent on   "ensure filetype detection enabled
+syntax enable               "enable syntax highlighting, 'on' forces defaults
 set hidden            "(hid) allow hiding unsaved buffers
 set shellslash        "(ssl) force forward slash for expanded filenames
 set history=100       "(hi) command line history (Default:50)
@@ -81,6 +83,9 @@ set printoptions+=left:5pc  "default is (left:10pc,right:5pc,top:5pc,bottom:5pc)
 "=======================================================
 "set t_Co=256          "256 color mode; rec'd for  Vim over SSH
 try|colorscheme gruvbox|catch|try|colorscheme evening|catch|endtry|endtry
+" Make terminal Campbell blue
+highlight Terminal guibg=#012456
+highlight link VimLineComment Comment
 set spell              "spell checking
 set splitbelow         "(sb/nosb) new split below
 set splitright         "(spr/nospr) new split to right
@@ -112,8 +117,8 @@ if has('gui_running')
     set guioptions-=t      "get rid of tear-off menu items
     set guioptions-=T      "get rid of toolbar
     set guioptions+=e      "use GUI tab bar (causes Airline issues)
-    set guioptions+=c      "use console dialogs instead of gui ones
-    set guioptions+=!      "execute  external commands ina a terminal window
+    set guioptions+=c      "use console dialogs instead of GUI ones
+    set guioptions+=!      "execute  external commands in a terminal window
     set guitablabel=[%N]   "define tab text: tab number [#]
     set guitablabel+=%h    "define tab text: help buffer is [help]
     set guitablabel+=%t    "define tab text: show just filename (tail)
@@ -128,8 +133,6 @@ set statusline=%f\ %m\ %r\ Line:%l/%L[%p%%]\ Col:%c\ Buf:%n\ [%b][0x%B]
 
 "TEXT {{{1
 "=======================================================
-filetype plugin indent on   "ensure filetype detection enabled
-syntax enable               "enable syntax highlighting, 'on' forces defaults
 if executable('par') == 1   "executable() returns '-1' for 'not implemented...'
     set formatprg=par\ -w79
 endif
@@ -167,7 +170,7 @@ set smartcase  "(scs)upper-case sensitive search (overrides 'ignorecase')
 augroup filetype_text
     autocmd!
     " automatically load views for text files
-    autocmd Filetype text silent loadview
+    autocmd FileType text silent loadview
 augroup END
 
 augroup filetype_html
@@ -176,20 +179,23 @@ augroup filetype_html
     autocmd FileType html nnoremap <buffer> <localleader>f Vatzf
     " make pandoc the default formatprg ("gq" command) for html files
     if executable('pandoc') == 1   "executable() returns '-1' for 'not implemented...'
-        autocmd Filetype html setlocal formatprg=\ pandoc\ -f\ html\ -t\ html
+        autocmd FileType html setlocal formatprg=pandoc\ -f\ html\ -t\ html
     endif
 augroup END
 
 augroup filetype_python
     autocmd!
-    autocmd Filetype python setlocal colorcolumn=79
+    autocmd FileType python setlocal colorcolumn=79
     autocmd FileType python setlocal list spell
+    autocmd BufEnter *.py match Exception /\v%>79v./
+    autocmd BufLeave *.py match none
 augroup END
 
 augroup filetype_kivy
     autocmd!
     autocmd BufNewFile,BufRead *.kv setfiletype kivy
-    autocmd Filetype kivy setlocal commentstring=#\ %s
+    autocmd FileType kivy setlocal list spell
+    autocmd FileType kivy setlocal commentstring=#\ %s
     autocmd FileType kivy setlocal comments=:#
 augroup END
 
@@ -199,8 +205,6 @@ augroup filetype_markdown
     autocmd FileType markdown setlocal colorcolumn=79
     autocmd BufEnter *.md,*.markdown match Exception /\v%>79v./
     autocmd BufLeave *.md,*.markdown match none
-    autocmd FileType markdown iabbrev <buffer> +;; <TAB>+
-    autocmd FileType markdown iabbrev <buffer> -;; <TAB><TAB>-
     autocmd FileType markdown inoremap <buffer> ',, &apos;
     autocmd FileType markdown inoremap <buffer> ",, &quot;
     autocmd FileType markdown inoremap <buffer> &,, &amp;
@@ -232,14 +236,13 @@ augroup filetype_git
     autocmd FileType gitconfig setlocal textwidth=72
     autocmd FileType gitconfig setlocal formatoptions+=t   " auto wrap/format
     autocmd FileType gitconfig setlocal colorcolumn=72
-    autocmd FileType gitcommit setlocal list
+    autocmd FileType gitcommit setlocal list spell
 augroup END
 
 "PACKAGES/PLUGINS {{{1
 "=======================================================
 " TRIAL PLUGINS
-" packadd! hexokinase
-
+packadd! characterize  "Tim Pope plugin extending `ga` information
 packadd! colorizer
 "mapping: <leader>c mapped to ':ColorToggle'
 " red #123456
@@ -323,8 +326,15 @@ if has('python3')
     " let g:UltiSnipsEnableSnipMate = 0 " Don't look for SnipMate snippets
     " https://github.com/python-mode/python-mode/issues/922
     silent! python3 1
+    let g:ultisnips_python_style = 'google'
     let g:ultisnips_python_quoting_style = 'single'
     let g:ultisnips_python_triple_quoting_style = 'double'
+
+    packadd! mundo                   "undo tree plugin (fork of gundo) REQ's Python
+    "let g:mundo_width = 60          "default: 45
+    "let g:mundo_preview_height = 40 "default: 15
+    "let g:mundo_right = 1           "default: 0 (off, open's on left)
+    "mapping: <leader>m mapped to toggle
 endif
 
 packadd! indent-guides
@@ -335,12 +345,6 @@ let g:indent_guides_color_change_percent = 5
 
 packadd! scratch
 "mapping: <leader>s mapped to open Scratch buffer
-
-packadd! mundo                   "undo tree plugin (fork of gundo) REQ's Python
-"let g:mundo_width = 60          "default: 45
-"let g:mundo_preview_height = 40 "default: 15
-"let g:mundo_right = 1           "default: 0 (off, open's on left)
-"mapping: <leader>m mapped to toggle
 
 packadd! nerdtree           "NerdTree File Browser for vim
 if has('win32')
@@ -451,6 +455,9 @@ packadd! midrange       "midrange color schemes
 :let maplocalleader = '\'
 nnoremap <BS> ,
 
+" jk as alternate to <C-C> or <ESC>
+inoremap jk <ESC>
+
 " use visual rather than linewise up/down (except with counts)
 noremap <expr> j (v:count ? 'j' : 'gj')
 noremap <expr> k (v:count ? 'k' : 'gk')
@@ -465,6 +472,15 @@ nnoremap Y y$
 cnoremap <C-a> <Home>
 cnoremap <C-e> <End>
 
+"Make Ctrl-Backspace behave like Ctrl-W
+inoremap <C-BS> <C-w>
+cnoremap <C-BS> <C-w>
+
+"Launch Explorer
+if has('win32')
+    noremap <silent> <leader>EE :set noshellslash<CR>:silent !start explorer %:p:h:8<CR>:set shellslash<CR><ESC>
+
+endif
 "Toggle Paste Mode
 set pastetoggle=<Insert>
 " if !has('gui_running')
@@ -473,45 +489,16 @@ set pastetoggle=<Insert>
 
 nnoremap <leader>ve :split $MYVIMRC<CR>
 nnoremap <leader>vs :source $MYVIMRC<CR>
-nnoremap <C-H> 0
-nnoremap <C-L> $
 nnoremap <leader># :sb#<CR>
 nnoremap <silent> <leader><leader> :let v:hlsearch = (v:hlsearch) ? 0 : 1<CR>
 
+" uppercase/lowercase/capitalize/capitalize
 inoremap <S-Up> <ESC>gUiwgi
 inoremap <S-Down> <ESC>guiwgi
 inoremap <C-Up> <ESC>guiw~gi
 inoremap <C-Down> <ESC>guiw~gi
-inoremap jk <ESC>
-" inoremap kj <C-O>
 
-iabbrev ->;; →
-iabbrev =>;; ⇒
-iabbrev SE;; §
-abbrev <expr> d;; strftime("%Y-%m-%d")
-abbrev <expr> D;; '['.strftime("%Y-%m-%d").']'
-abbrev <expr> pwd;; fnameescape(expand('%:p:h'))
-abbrev <expr> PWD;; fnameescape(getcwd())
-abbrev <expr> ls;; fnameescape(expand('%:p:h')) . "/"
-abbrev <expr> f;; fnamemodify(browse(0, 'File Path', '%:p:h', ''), ':p')
-abbrev <expr> F;; fnamemodify(browse(0, 'File Path', '.', ''), ':p')
-" abbrev <expr> F;; '"' . fnamemodify(browse(0, 'File Path', '%:p:h', ''), ':p') . '"'
-
-digraph ## 9552 "═ digraph (Box drawings double horizontal)
-
-"Quickfix and Location List movement based on cursor position
-nnoremap [gl :lbefore<CR>
-" nnoremap [<A-L> :labove<CR>
-nnoremap ]gl :lafter<CR>
-" nnoremap ]<A-L> :lbelow<CR>
-
-nnoremap [gc :cbefore<CR>
-" nnoremap [<A-C> :cabove<CR>
-nnoremap ]gc :cafter<CR>
-" nnoremap ]<A-C> :cbelow<CR>
-"FKeys Mapping
-
-"   Terminal Mappings
+"   TERMINAL MAPPINGS
 if has('win32')
     nnoremap <F2> :set shell=cmd.exe<CR>:set shellcmdflag&<CR>:set shellquote&<CR>:set shellxquote&<CR>:set shellpipe&<CR>:set shellredir&<CR>:echo "[Shell: CMD]"<CR>
     "see https://robindouglas.uk/powershell/vim/2018/04/05/PowerShell-with-Vim.html
@@ -524,25 +511,28 @@ if has('win32')
     "<CR>:set shellslash<CR>:set shellxquote=\"<CR>let $PATH .= ';C:\cygwin64\bin'<CR>
 endif
 
-"   Color Scheme Mappings
+"   COLOR SCHEME MAPPINGS
 nnoremap <F5> :colorscheme gruvbox\|redraw\|echo g:colors_name<CR>
 nnoremap <F6> :colorscheme one\|redraw\|echo g:colors_name<CR>
 nnoremap <F7> :colorscheme Kafka\|redraw\|echo g:colors_name<CR>
 "<F8> mappet to setcolors function NextColor (cycles subset of colorschemes)
+" NextColor(0) chooses a random color scheme
 nnoremap <F8> :call NextColor(1)<CR>
 nnoremap <S-F8> :call NextColor(-1)<CR>
 nnoremap <A-F8> :call NextColor(0)<CR>
 
-"   Font Mappings
-nnoremap <F9> :set guifont=Hack:h9\|redraw\|echo &gfn<CR>
-nnoremap <S-F9> :set guifont=Iosevka:h10\|redraw\|echo &gfn<CR>
-nnoremap <F10> :set guifont=Fira_Code:h9\|redraw\|echo &gfn<CR>
-nnoremap <S-F10> :set guifont=mononoki:h10\|redraw\|echo &gfn<CR>
-nnoremap <F11> :set guifont=JetBrains_Mono:h9\|redraw\|echo &gfn<CR>
-nnoremap <S-F11> :set guifont=InputMono:h9\|redraw\|echo &gfn<CR>
-" nnoremap <F11> :set guifont=Monoid:h9\|redraw\|echo &gfn<CR>
-" nnoremap <F11> :set guifont=Sudo:h12\|redraw\|echo &gfn<CR>
-" nnoremap <F11> :set guifont=Source_Code_Pro:h9\|redraw\|echo &gfn<CR>
+"   FONT MAPPINGS
+if has('gui_running')
+    nnoremap <F9> :set guifont=Hack:h9\|redraw\|echo &gfn<CR>
+    nnoremap <S-F9> :set guifont=Iosevka:h10\|redraw\|echo &gfn<CR>
+    nnoremap <F10> :set guifont=Fira_Code:h9\|redraw\|echo &gfn<CR>
+    nnoremap <S-F10> :set guifont=mononoki:h10\|redraw\|echo &gfn<CR>
+    nnoremap <F11> :set guifont=JetBrains_Mono:h9\|redraw\|echo &gfn<CR>
+    nnoremap <S-F11> :set guifont=InputMono:h9\|redraw\|echo &gfn<CR>
+    " nnoremap <F11> :set guifont=Monoid:h9\|redraw\|echo &gfn<CR>
+    " nnoremap <F11> :set guifont=Sudo:h12\|redraw\|echo &gfn<CR>
+    " nnoremap <F11> :set guifont=Source_Code_Pro:h9\|redraw\|echo &gfn<CR>
+endif
 
 " Vimcast Shortcut to rapidly toggle 'set list'
 nnoremap <silent> <leader>L :set list!<CR>:set list?<CR>
@@ -572,9 +562,16 @@ cnoremap %% <C-R>=fnameescape(expand('%:h')).'/'<CR>
 " nnoremap <leader>ev :vsp <C-R>=fnameescape(expand('%:h')).'/'<CR>
 " nnoremap <leader>et :tabe <C-R>=fnameescape(expand('%:h')).'/'<CR>
 
-"UltiSnips Mappings
-nnoremap <leader>ue :UltiSnipsEdit!<CR>
-nnoremap <leader>ur :call UltiSnips#RefreshSnippets()<CR>
+"   PLUGIN MAPPINGS
+if has('gui_running')
+    "UltiSnips Mappings
+    nnoremap <leader>ue :UltiSnipsEdit!<CR>
+    nnoremap <leader>uE :UltiSnipsEdit<CR>
+    nnoremap <leader>ur :call UltiSnips#RefreshSnippets()<CR>
+
+    "Mundo Toggle
+    nnoremap <leader>m :MundoToggle<CR>
+endif
 
 "Indent-Guides Mappings
 nnoremap <leader>i :IndentGuidesToggle<CR>
@@ -590,31 +587,54 @@ nnoremap <leader>S :ScratchPreview<CR>
 nnoremap <space><space> :CtrlPMixed<CR>
 nnoremap <leader><C-P> :CtrlPLine<CR>
 
+"NERDTree Mappings
 nnoremap <leader>N :NERDTree<CR>
 "Create shortcut combining :NERDTreeFind and :NERDTreeToggle functionality
 nnoremap <silent> <expr> <leader>n g:NERDTree.IsOpen() ?  "\:NERDTreeClose<CR>" : bufexists(expand('%')) ? "\:NERDTreeFind<CR>" : "\:NERDTree<CR>"
 
-"Mundo Toggle
-nnoremap <leader>m :MundoToggle<CR>
-
-"Create shortcut for AirlineToggle
+"Airline Mappings
 nnoremap <leader>- :AirlineToggle<CR>
 nnoremap <leader>_ :AirlineToggleWhitespace<CR>
 
+"Experimental {{{2
+"-------------------------------------------------------
+iabbrev ->;; →
+iabbrev =>;; ⇒
 
-"Experimental {{{1
-"=======================================================
+abbrev <expr> d;; strftime("%Y-%m-%d")
+abbrev <expr> D;; '['.strftime("%Y-%m-%d").']'
+abbrev <expr> pwd;; fnameescape(expand('%:p:h'))
+abbrev <expr> PWD;; fnameescape(getcwd())
+abbrev <expr> ls;; fnameescape(expand('%:p:h')) . "/"
+
+if has('browse')
+    abbrev <expr> f;; fnamemodify(browse(0, 'File Path', '%:p:h', ''), ":p")
+    abbrev <expr> F;; fnamemodify(browse(0, 'File Path', '.', ''), ":p")
+    " abbrev <expr> F;; '"' . fnamemodify(browse(0, 'File Path', '%:p:h', ''), ':p') . '"'
+endif
+
+digraph ## 9552 "═ digraph (Box drawings double horizontal)
+
+"Quickfix and Location List movement based on cursor position
+nnoremap [gl :lbefore<CR>
+" nnoremap [<A-L> :labove<CR>
+nnoremap ]gl :lafter<CR>
+" nnoremap ]<A-L> :lbelow<CR>
+
+nnoremap [gq :cbefore<CR>
+" nnoremap [<A-C> :cabove<CR>
+nnoremap ]gq :cafter<CR>
+" nnoremap ]<A-C> :cbelow<CR>
+"FKeys Mapping
+
 nnoremap <silent> <leader>w :2match Error /\v\s+$/<CR>
 nnoremap <silent> <leader>W :2match none<CR>
 nnoremap <leader>1 :setlocal foldlevel=1<CR>
 nnoremap <leader>2 :setlocal foldlevel=2<CR>
 nnoremap <leader>3 :setlocal foldlevel=3<CR>
-" Make terminal blue
-highlight Terminal guibg=#012456
 
-
-" Mapped Functions {{{1
-"=======================================================
+" Mapped Functions {{{2
+"-------------------------------------------------------
 " toggle quickfix window
 nnoremap <silent> <leader>q :call <SID>QuickfixToggle()<CR>
 function! s:QuickfixToggle()
@@ -666,7 +686,7 @@ nnoremap <silent> <leader>f :call <SID>FoldColumnToggle()<CR>
 function! s:FoldColumnToggle()
     let &l:foldcolumn = (&l:foldcolumn) ? 0 : 3
 endfunction
-" nnoremap <silent> <expr> <leader>F (&l:foldcolumn) ? ":set fdc=0<CR>" : "set fdc=3<CR>"
+" nnoremap <silent> <expr> <leader>F (&l:foldcolumn) ? ":setl fdc=0<CR>" : "setl fdc=3<CR>"
 
 " toggle `help` and `text` filetypes for current buffer
 nnoremap <silent> <leader><F1> :call <SID>HelpToTextToggle()<CR>
@@ -688,14 +708,16 @@ function! s:BrowseFilterOldfiles(filter_pattern, is_split, mods)
     endif
 endfunction
 
-
-
 "MISCELLANEOUS {{{1
 "=======================================================
+cabbrev pandoc! !pandoc %:p:S -o %:p:h:8/%:t:r.html -s --toc -c notes.css
+cabbrev pandocT! !pandoc %:p:S -o %:p:h:8/%:t:r.html -s --toc -c notes.css -M title="%:t:r"
+
 " DEREK WYATT: The following beast is something i didn't write... it will
 " return the syntax highlighting group that the current "thing" under the
 " cursor belongs to -- very useful for figuring out what to change as far as
 " syntax highlighting goes.
+"   'lo' uses 'synIDtrans()' which follows links to base highlight group.
 nnoremap <silent> <leader><C-S> :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name")
      \ . '> trans<' . synIDattr(synID(line("."),col("."),0),"name")
      \ . "> lo<" . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name")
@@ -703,6 +725,7 @@ nnoremap <silent> <leader><C-S> :echo "hi<" . synIDattr(synID(line("."),col(".")
 
 " " Show syntax highlighting groups for word under cursor
 " http://vimcasts.org/episodes/creating-colorschemes-for-vim/
+"   groups are ordered from outermost to innermost.
 nnoremap <leader><C-H> :call <SID>SynStack()<CR>
 function! <SID>SynStack()
   if !exists("*synstack")
@@ -718,7 +741,6 @@ endfunction
 "" Credit: Siddhant
 ""open explorer in the current file's directory
 "noremap <leader>e :!start explorer %:p:h:8<cr>
-noremap <silent> <leader>EE :set noshellslash<CR>:silent !start explorer %:p:h:8<CR>:set shellslash<CR><ESC>
 ""open windows command prompt in the current file's directory
 "noremap <leader>c :!start cmd /k cd %:p:h:8<cr>
 ""open cygwin bash in the current file's directory
