@@ -86,6 +86,7 @@ try|colorscheme gruvbox|catch|try|colorscheme evening|catch|endtry|endtry
 " Make terminal Campbell blue
 highlight Terminal guibg=#012456
 highlight link VimLineComment Comment
+set background=dark    "dark background (terminal defaults to light)
 set spell              "spell checking
 set splitbelow         "(sb/nosb) new split below
 set splitright         "(spr/nospr) new split to right
@@ -481,6 +482,10 @@ if has('win32')
     noremap <silent> <leader>EE :set noshellslash<CR>:silent !start explorer %:p:h:8<CR>:set shellslash<CR><ESC>
 
 endif
+
+"Toggle line wrap
+nnoremap <silent> <leader>w :let &wrap = (&wrap) ? 0 : 1<CR>
+
 "Toggle Paste Mode
 set pastetoggle=<Insert>
 " if !has('gui_running')
@@ -492,7 +497,7 @@ nnoremap <leader>vs :source $MYVIMRC<CR>
 nnoremap <leader># :sb#<CR>
 nnoremap <silent> <leader><leader> :let v:hlsearch = (v:hlsearch) ? 0 : 1<CR>
 
-" uppercase/lowercase/capitalize/capitalize
+"uppercase/lowercase/capitalize/capitalize
 inoremap <S-Up> <ESC>gUiwgi
 inoremap <S-Down> <ESC>guiwgi
 inoremap <C-Up> <ESC>guiw~gi
@@ -627,8 +632,8 @@ nnoremap ]gq :cafter<CR>
 " nnoremap ]<A-C> :cbelow<CR>
 "FKeys Mapping
 
-nnoremap <silent> <leader>w :2match Error /\v\s+$/<CR>
-nnoremap <silent> <leader>W :2match none<CR>
+nnoremap <silent> <leader>W :2match Error /\v\s+$/<CR>
+nnoremap <silent> <leader>WW :2match none<CR>
 nnoremap <leader>1 :setlocal foldlevel=1<CR>
 nnoremap <leader>2 :setlocal foldlevel=2<CR>
 nnoremap <leader>3 :setlocal foldlevel=3<CR>

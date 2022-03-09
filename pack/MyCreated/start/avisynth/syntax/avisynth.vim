@@ -7,7 +7,7 @@ if exists("b:current_syntax")
     finish
 endif
 
-let b:current_syntax = "potion"
+let b:current_syntax = "avisynth"
 
 syntax keyword avisynthKeyword function global return try catch last
 syntax keyword avisynthKeyword clip int float string bool val
@@ -97,7 +97,7 @@ syntax keyword avisynthFunction BlankClip Blackness ColorBars ColorBarsHD Compar
 syntax keyword avisynthFunction LoadPlugin LoadCPlugin LoadVirtualDubPlugin LoadVFAPIPlugin
 
 " External Filters (Small Subset)
-syntax keyword avisynthFunction ColorMatrix QTInput DSS2  FVideoSource FFAudioSource FFIndexSource FFImageSource FFmpegSource2 FFMS2 LSmashSource2 LibavSource2 LSMASHVideoSource LWLibavVideoSource LSMASHAudioSource LWLibavAudioSource NicAC3Source NicDTSSource NicMPG123Source NicLPCMSource RaWavSource VSFilter DGDecode SoundOut SoxFilter FDecimate  FDecimate2 TransAll WaveForm FixChromaBleeding QTGMC Yadif Decomb
+syntax keyword avisynthFunction ColorMatrix QTInput DSS2 FVideoSource FFAudioSource FFIndexSource FFImageSource FFmpegSource2 FFMS2 LSmashSource2 LibavSource2 LSMASHVideoSource LWLibavVideoSource LSMASHAudioSource LWLibavAudioSource NicAC3Source NicDTSSource NicMPG123Source NicLPCMSource RaWavSource VSFilter DGDecode SoundOut SoxFilter FDecimate FDecimate2 TransAll WaveForm FixChromaBleeding QTGMC Yadif Decomb
 
 highlight link avisynthFunction Function
 
