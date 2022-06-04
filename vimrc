@@ -187,18 +187,18 @@ set smartcase  "(scs)upper-case sensitive search (overrides 'ignorecase')
 " Reset cursor at startup
 "   terminals not using block cursor may cause problems because
 "   vim only resets the cursor AFTER exiting insert mode
-" https://github.com/g6ai/dotfiles/wiki/vimrc#cursor-setting
-if !has('gui_running')
-    augroup reset_cursor_shape
-        au!
-        autocmd VimEnter * normal! :startinsert :stopinsert
-        autocmd VimEnter * redraw!
+" <https://github.com/g6ai/dotfiles/wiki/vimrc#cursor-setting>
+"if !has('gui_running')
+"    augroup reset_cursor_shape
+"        au!
+"        autocmd VimEnter * normal! :startinsert :stopinsert
+"        autocmd VimEnter * redraw!
 
-        "<https://ttssh2.osdn.jp/manual/4/en/usage/tips/vim.html>
-        " `2` Block,  `[4 Underline, `[6` Beam; (subtract 1 for blinking)
-        autocmd VimLeave * silent !echo -ne "\e[6 q"
-    augroup END
-endif
+"        "<https://ttssh2.osdn.jp/manual/4/en/usage/tips/vim.html>
+"        " `2` Block,  `[4 Underline, `[6` Beam; (subtract 1 for blinking)
+"        autocmd VimLeave * silent !echo -ne "\e[6 q"
+"    augroup END
+"endif
 
 augroup filetype_text
     autocmd!
@@ -627,6 +627,9 @@ nnoremap <leader>S :ScratchPreview<CR>
 "CtrlP Mappings:
 nnoremap <space><space> :CtrlPMixed<CR>
 nnoremap <leader><C-P> :CtrlPLine<CR>
+
+"FZF Mappings
+nnoremap <C-F> :FZF<CR>
 
 "NERDTree Mappings
 nnoremap <leader>N :NERDTree<CR>
