@@ -11,38 +11,38 @@ endif
 
 "VIMRC DEFAULT SETTINGS {{{1
 "=======================================================
-set nocompatible                "don't change defaults to make Vim Vi compatible
+set nocompatible                "(nocp) don't use Vi compatible defaults
 "source $VIMRUNTIME/vimrc_example.vim
 "source $VIMRUNTIME/mswin.vim   "sets Ctrl-V to paste, arrow keys, etc.
 "behave mswin                   "set 'mswin' behavior for mouse and selection
 
-if has('win32')
-    set diffexpr=MyDiff()
-endif
+" if has('win32')
+"     set diffexpr=MyDiff()
+" endif
 
-function MyDiff()
-    let opt = '-a --binary '
-    if &diffopt =~ 'icase' | let opt = opt . '-i ' | endif
-    if &diffopt =~ 'iwhite' | let opt = opt . '-b ' | endif
-    let arg1 = v:fname_in
-    if arg1 =~ ' ' | let arg1 = '"' . arg1 . '"' | endif
-    let arg2 = v:fname_new
-    if arg2 =~ ' ' | let arg2 = '"' . arg2 . '"' | endif
-    let arg3 = v:fname_out
-    if arg3 =~ ' ' | let arg3 = '"' . arg3 . '"' | endif
-    let eq = ''
-    if $VIMRUNTIME =~ ' '
-    if &sh =~ '\<cmd'
-        let cmd = '"' . $VIMRUNTIME . '\diff"'
-        let eq = '""'
-    else
-        let cmd = substitute($VIMRUNTIME, ' ', '" ', '') . '\diff"'
-    endif
-    else
-    let cmd = $VIMRUNTIME . '\diff'
-    endif
-    silent execute '!' . cmd . ' ' . opt . arg1 . ' ' . arg2 . ' > ' . arg3 . eq
-endfunction
+" function MyDiff()
+"     let opt = '-a --binary '
+"     if &diffopt =~ 'icase' | let opt = opt . '-i ' | endif
+"     if &diffopt =~ 'iwhite' | let opt = opt . '-b ' | endif
+"     let arg1 = v:fname_in
+"     if arg1 =~ ' ' | let arg1 = '"' . arg1 . '"' | endif
+"     let arg2 = v:fname_new
+"     if arg2 =~ ' ' | let arg2 = '"' . arg2 . '"' | endif
+"     let arg3 = v:fname_out
+"     if arg3 =~ ' ' | let arg3 = '"' . arg3 . '"' | endif
+"     let eq = ''
+"     if $VIMRUNTIME =~ ' '
+"     if &sh =~ '\<cmd'
+"         let cmd = '"' . $VIMRUNTIME . '\diff"'
+"         let eq = '""'
+"     else
+"         let cmd = substitute($VIMRUNTIME, ' ', '" ', '') . '\diff"'
+"     endif
+"     else
+"     let cmd = $VIMRUNTIME . '\diff'
+"     endif
+"     silent execute '!' . cmd . ' ' . opt . arg1 . ' ' . arg2 . ' > ' . arg3 . eq
+" endfunction
 
 "GENERAL {{{1
 "=======================================================
@@ -92,7 +92,7 @@ try|colorscheme gruvbox|catch|try|colorscheme evening|catch|endtry|endtry
 " Make terminal Campbell blue
 highlight Terminal guibg=#012456
 highlight link VimLineComment Comment
-set background=dark    "dark background (terminal defaults to light)
+set background=dark    "(bg) dark background (terminal defaults to light)
 set spell              "spell checking
 set splitbelow         "(sb/nosb) new split below
 set splitright         "(spr/nospr) new split to right
@@ -141,6 +141,11 @@ else
 
     set guicursor+=c:ver20 "(gcr) use vertical bar in command line
     " set guicursor+=n-v:block-Cursor-blinkon0   "(gcr)no blink cursor
+    if has('win32') || has('win64')
+        try|set guifont=Hack:h9|catch|endtry    "good programming font with decent utf support
+    elseif has('linux')
+        try|set guifont=Hack 10|catch|endtry    "format for Linux
+    endif
 endif
 
 set listchars=tab:▸\ ,eol:¬     "vimcast #1 textmate tabstops(u25b8) and EOL(u00ac)
@@ -155,7 +160,7 @@ endif
 set wrap                    "word wrap (on by default) (soft-wraps text)
 " set wrapmargin=5          "(if tw=0) # of chars to win border before wrapping starts
 " set textwidth=80          "(tw)# of columns before new row automatically starts
-set whichwrap=<,>,[,]       "(ww) enable <left>/<right> to loop up/down line NV,IR
+set whichwrap=<,>,[,]       "(ww) enable <left>/<right> to loop up/down line NV,IR modes
 set formatoptions+=l        "(fo) long lines already past tw not auto-wrapped in insert mode
 " set formatoptions+=a      "(fo) automatic formatting of paragraphs
 " set nrformats+=alpha      "(nf) inc [A-Z a-z] (disrupts linewise /)
@@ -320,7 +325,7 @@ packadd! traces             "previews of ranges and substitutions
 packadd! fugitive           "Git integration plugin
 
 packadd! ctrlp              "ctrlp.vim fuzzy file finder
-if has('win32')
+if has('win32') || has('win64')
     let g:ctrlp_cache_dir =$HOME.'/AppData/Roaming/Vim/ctrlp_cache//'       " sets cache dir
 endif
 let g:ctrlp_arg_map = 1     "<Ctrl-Y> and <Ctrl-O> require h,v,t,<CR> as default behavior
@@ -346,12 +351,8 @@ let g:ale_echo_msg_format = '[%linter%:%severity%] %code: %%s'
 " g:ale_lint_on_filetype_changed=0
 let g:ale_fixers = {'*': ['remove_trailing_lines', 'trim_whitespace'],}
 " let g:ale_update_tagstack = 0 "default: 1; 0 to disable.
-"ALE mappings
-nnoremap <leader>a :ALEToggleBuffer<CR>
-" nnoremap <leader>ad :ALEDetail<CR>
-" nnoremap <leader>af :ALEFix<CR>
-" nnoremap <leader>A :ALEToggle<CR>
-""
+"mapping: nnoremap <leader>a :ALEToggleBuffer<CR>
+
 if has('python3')
     packadd! ultisnips
     packadd! snippets
@@ -382,7 +383,7 @@ packadd! scratch
 "mapping: <leader>s mapped to open Scratch buffer
 
 packadd! nerdtree           "NerdTree File Browser for vim
-if has('win32')
+if has('win32') || has('win64')
     let g:NERDTreeBookmarksFile=$HOME.'/vimfiles/.NERDTreeBookmarks' "set bmark loc
     let g:NERDTreeIgnore=['\c^ntuser\..*'] "don't show ntuser.* files
 else
@@ -514,9 +515,8 @@ inoremap <C-BS> <C-w>
 cnoremap <C-BS> <C-w>
 
 "Launch Explorer
-if has('win32')
+if has('win32') || has('win64')
     noremap <silent> <leader>EE :set noshellslash<CR>:silent !start explorer %:p:h:8<CR>:set shellslash<CR><ESC>
-
 endif
 
 "Toggle line wrap
@@ -540,7 +540,7 @@ inoremap <C-Up> <ESC>guiw~gi
 inoremap <C-Down> <ESC>guiw~gi
 
 "   TERMINAL MAPPINGS
-if has('win32')
+if has('win32') || has('win64')
     nnoremap <F2> :set shell=cmd.exe<CR>:set shellcmdflag&<CR>:set shellquote&<CR>:set shellxquote&<CR>:set shellpipe&<CR>:set shellredir&<CR>:echo "[Shell: CMD]"<CR>
     "see https://robindouglas.uk/powershell/vim/2018/04/05/PowerShell-with-Vim.html
     " use pwsh.exe for powershell 6 and above
@@ -613,6 +613,12 @@ if has('python3')
     "Mundo Toggle
     nnoremap <leader>m :MundoToggle<CR>
 endif
+
+"ALE Mappings
+nnoremap <leader>a :ALEToggleBuffer<CR>
+" nnoremap <leader>ad :ALEDetail<CR>
+" nnoremap <leader>af :ALEFix<CR>
+" nnoremap <leader>A :ALEToggle<CR>
 
 "Indent-Guides Mappings
 nnoremap <leader>i :IndentGuidesToggle<CR>
