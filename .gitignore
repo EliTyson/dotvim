@@ -5,6 +5,7 @@
 # Files
 .NERDTree*
 .netrwhist
+.viminfo
 
 # Filetypes
 *.zip
