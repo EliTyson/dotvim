@@ -1,7 +1,9 @@
 " vim: foldmethod=marker
 set encoding=utf-8              "if encounter 'CONVERSION ERROR' use ':w ++enc=utf-8'
 scriptencoding utf-8            "specifies the encoding of this script file
-set pythonthreedll=python39.dll "was defaulting to python37.dll
+if has('win32') || has('win32unix')
+    set pythonthreedll=python39.dll "was defaulting to python37.dll
+endif
 
 "--------------
 "   MY VIMRC   "
@@ -46,6 +48,7 @@ set nocompatible                "(nocp) don't use Vi compatible defaults
 "=======================================================
 filetype plugin indent on   "ensure filetype detection enabled
 syntax enable               "enable syntax highlighting, 'on' forces defaults
+set commentstring=#\ %s    "(cms) set default comment string to use '#'
 set hidden            "(hid) allow hiding unsaved buffers
 set shellslash        "(ssl) force forward slash for expanded filenames
 set history=100       "(hi) command line history (Default:50)
@@ -64,6 +67,9 @@ if has('win32') || has('win32unix')
     set viminfofile=$HOME/AppData/Roaming/Vim/_viminfo "sets file name for viminfo
     " set shell=pwsh.exe shellcmdflag=-NoProfile\ -NoLogo\ -NonInteractive\ -Command
     " set shellquote=\" shellpipe=> shellredir=> shellxquote=
+else
+    let $VIM=$HOME.'/.vim'
+    set viminfofile=$VIM/.viminfo
 endif
 if has('win32unix')                                      "cygwin settings
     set packpath^=$HOME/vimfiles//                       "sets directory to save views
@@ -110,7 +116,10 @@ set visualbell         "(vb) use visual bell, `t_vb=` suppresses flash
 "set fillchars=""      "(fcs)get rid of characters in window separators
 "set colorcolumn=80    "(cc) comma separated list of highlighted columns
 "set cursorline        "(cul/nocul) highlight cursor's line
-if has('gui_running')
+if !has('gui_running')
+    "prevent vim background from overwriting terminal transparency
+    highlight! Normal ctermbg=NONE
+else
     " set lines=99 columns=999 "maximize window
     set lines=50 columns=100
     "set guioptions=egmrLt "(go) settings w/ menu (default: 'egmrLtT')
@@ -123,6 +132,13 @@ if has('gui_running')
     set guitablabel=[%N]   "define tab text: tab number [#]
     set guitablabel+=%h    "define tab text: help buffer is [help]
     set guitablabel+=%t    "define tab text: show just filename (tail)
+    "good programming font with decent utf support
+    if has('win32')
+        try|set guifont=Hack:h9|catch|endtry
+    elseif has('gui_running') && !has('win32')
+        try|set guifont=Hack 10|catch|endtry
+    endif
+
     set guicursor+=c:ver20 "(gcr) use vertical bar in command line
     " set guicursor+=n-v:block-Cursor-blinkon0   "(gcr)no blink cursor
     if has('win32') || has('win64')
@@ -172,6 +188,23 @@ set smartcase  "(scs)upper-case sensitive search (overrides 'ignorecase')
 
 "AUTO-COMMANDS {{{1
 "=======================================================
+
+" Reset cursor at startup
+"   terminals not using block cursor may cause problems because
+"   vim only resets the cursor AFTER exiting insert mode
+" https://github.com/g6ai/dotfiles/wiki/vimrc#cursor-setting
+if !has('gui_running')
+    augroup reset_cursor_shape
+        au!
+        autocmd VimEnter * normal! :startinsert :stopinsert
+        autocmd VimEnter * redraw!
+
+        "<https://ttssh2.osdn.jp/manual/4/en/usage/tips/vim.html>
+        " `2` Block,  `[4 Underline, `[6` Beam; (subtract 1 for blinking)
+        autocmd VimLeave * silent !echo -ne "\e[6 q"
+    augroup END
+endif
+
 augroup filetype_text
     autocmd!
     " automatically load views for text files
@@ -324,6 +357,8 @@ if has('python3')
     packadd! ultisnips
     packadd! snippets
     packadd! arduino-snippets
+    "Unlike windows, Linux is case-sensitive
+    let g:UltiSnipsSnippetDirectories=["UltiSnips", "ultisnips"]
     " let g:UltiSnipsEnableSnipMate = 0 " Don't look for SnipMate snippets
     " https://github.com/python-mode/python-mode/issues/922
     silent! python3 1
@@ -351,6 +386,8 @@ packadd! nerdtree           "NerdTree File Browser for vim
 if has('win32') || has('win64')
     let g:NERDTreeBookmarksFile=$HOME.'/vimfiles/.NERDTreeBookmarks' "set bmark loc
     let g:NERDTreeIgnore=['\c^ntuser\..*'] "don't show ntuser.* files
+else
+    let g:NERDTreeBookmarksFile=$VIM.'/.NERDTreeBookmarks'
 endif
 let g:NERDTreeAutoDeleteBuffer=1 "auto bd on file delete/rename
 let g:NERDTreeShowBookmarks=1   "show bookmarks by default
@@ -487,9 +524,9 @@ nnoremap <silent> <leader>w :let &wrap = (&wrap) ? 0 : 1<CR>
 
 "Toggle Paste Mode
 set pastetoggle=<Insert>
-" if !has('gui_running')
-"     map <leader>p :set invpaste<CR>
-" endif
+if !has('gui_running')
+    map <leader>p :set invpaste<CR>
+endif
 
 nnoremap <leader>ve :split $MYVIMRC<CR>
 nnoremap <leader>vs :source $MYVIMRC<CR>
@@ -542,7 +579,7 @@ endif
 nnoremap <silent> <leader>L :set list!<CR>:set list?<CR>
 
 " Vimcast Shortcut to rapidly toggle 'spelling'
-" nnoremap <silent> <leader>s :set invspell<CR>:set spell?<CR>
+nnoremap <silent> <leader><C-S> :set invspell<CR>:set spell?<CR>
 
 " Select previously changed or yanked text
 noremap gV `[v`]
@@ -567,7 +604,7 @@ cnoremap %% <C-R>=fnameescape(expand('%:h')).'/'<CR>
 " nnoremap <leader>et :tabe <C-R>=fnameescape(expand('%:h')).'/'<CR>
 
 "   PLUGIN MAPPINGS
-if has('gui_running')
+if has('python3')
     "UltiSnips Mappings
     nnoremap <leader>ue :UltiSnipsEdit!<CR>
     nnoremap <leader>uE :UltiSnipsEdit<CR>
@@ -600,7 +637,7 @@ nnoremap <leader><C-P> :CtrlPLine<CR>
 "NERDTree Mappings
 nnoremap <leader>N :NERDTree<CR>
 "Create shortcut combining :NERDTreeFind and :NERDTreeToggle functionality
-nnoremap <silent> <expr> <leader>n g:NERDTree.IsOpen() ?  "\:NERDTreeClose<CR>" : bufexists(expand('%')) ? "\:NERDTreeFind<CR>" : "\:NERDTree<CR>"
+nnoremap <silent> <expr> <leader>n g:NERDTree.IsOpen() ? "\:NERDTreeClose<CR>" : bufexists(expand('%')) ? "\:NERDTreeFind<CR>" : "\:NERDTree<CR>"
 
 "Airline Mappings
 nnoremap <leader>- :AirlineToggle<CR>
@@ -728,7 +765,7 @@ cabbrev pandocT! !pandoc %:p:S -o %:p:h:8/%:t:r.html -s --toc -c notes.css -M ti
 " cursor belongs to -- very useful for figuring out what to change as far as
 " syntax highlighting goes.
 "   'lo' uses 'synIDtrans()' which follows links to base highlight group.
-nnoremap <silent> <leader><C-S> :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name")
+nnoremap <silent> <leader><C-I> :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name")
      \ . '> trans<' . synIDattr(synID(line("."),col("."),0),"name")
      \ . "> lo<" . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name")
      \ . ">"<CR>
