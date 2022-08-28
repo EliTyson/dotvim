@@ -1,6 +1,4 @@
 " vim: foldmethod=marker
-set encoding=utf-8              "if encounter 'CONVERSION ERROR' use ':w ++enc=utf-8'
-scriptencoding utf-8            "specifies the encoding of this script file
 if has('win32') || has('win32unix')
     set pythonthreedll=python39.dll "was defaulting to python37.dll
 endif
@@ -8,41 +6,6 @@ endif
 "--------------
 "   MY VIMRC   "
 "--------------
-
-"VIMRC DEFAULT SETTINGS {{{1
-"=======================================================
-set nocompatible                "(nocp) don't use Vi compatible defaults
-"source $VIMRUNTIME/vimrc_example.vim
-"source $VIMRUNTIME/mswin.vim   "sets Ctrl-V to paste, arrow keys, etc.
-"behave mswin                   "set 'mswin' behavior for mouse and selection
-
-" if has('win32')
-"     set diffexpr=MyDiff()
-" endif
-
-" function MyDiff()
-"     let opt = '-a --binary '
-"     if &diffopt =~ 'icase' | let opt = opt . '-i ' | endif
-"     if &diffopt =~ 'iwhite' | let opt = opt . '-b ' | endif
-"     let arg1 = v:fname_in
-"     if arg1 =~ ' ' | let arg1 = '"' . arg1 . '"' | endif
-"     let arg2 = v:fname_new
-"     if arg2 =~ ' ' | let arg2 = '"' . arg2 . '"' | endif
-"     let arg3 = v:fname_out
-"     if arg3 =~ ' ' | let arg3 = '"' . arg3 . '"' | endif
-"     let eq = ''
-"     if $VIMRUNTIME =~ ' '
-"     if &sh =~ '\<cmd'
-"         let cmd = '"' . $VIMRUNTIME . '\diff"'
-"         let eq = '""'
-"     else
-"         let cmd = substitute($VIMRUNTIME, ' ', '" ', '') . '\diff"'
-"     endif
-"     else
-"     let cmd = $VIMRUNTIME . '\diff'
-"     endif
-"     silent execute '!' . cmd . ' ' . opt . arg1 . ' ' . arg2 . ' > ' . arg3 . eq
-" endfunction
 
 "GENERAL {{{1
 "=======================================================
@@ -54,8 +17,10 @@ set shellslash        "(ssl) force forward slash for expanded filenames
 set history=100       "(hi) command line history (Default:50)
 " set undolevels=1000 "(ul) Max # of undos (Default: 10000)
 "don't expand these filetypes
+" let &printfont = &guifont "print using the same font as guifont
+set printoptions+=number:y  "default is (number:n ⇒ no line numbers)
+set printoptions+=left:5pc  "default is (left:10pc,right:5pc,top:5pc,bottom:5pc)
 set wildignore+=*\\^ntuser.*,*\\AppData\\*,*.dat,*.ini,*.exe,*.ffindex
-" set wildignore+=*.mp4,*.mkv,*.m4a,*.mka,*.wav,*.aac,*.pdf,*.jpg,*.gif,*.png
 if has('win32') || has('win32unix')
     set path+=$HOME,$HOME/Desktop                      "set path to search for find commands
     cd $HOME/Desktop                                   "sets current directory
@@ -67,23 +32,22 @@ if has('win32') || has('win32unix')
     set viminfofile=$HOME/AppData/Roaming/Vim/_viminfo "sets file name for viminfo
     " set shell=pwsh.exe shellcmdflag=-NoProfile\ -NoLogo\ -NonInteractive\ -Command
     " set shellquote=\" shellpipe=> shellredir=> shellxquote=
+    if executable('grep') == 1   "executable() returns '-1' for 'not implemented...'
+        let &g:grepprg='grep -n' "use grep (and prefix line #), instead of findstr
+    endif
 else
     let $VIM=$HOME.'/.vim'
-    set viminfofile=$VIM/.viminfo
+    if !has('nvim')
+        set viminfofile=$VIM/.viminfo
+    endif
 endif
-if has('win32unix')                                      "cygwin settings
+if has('win32unix') && !has('nvim')                      "cygwin settings
     set packpath^=$HOME/vimfiles//                       "sets directory to save views
     set packpath+=/c/Program\ Files\ (x86)/Vim/vim82//
     let $VIMRUNTIME = '/c/Program Files (x86)/Vim/vim82' "for syntax.vim
     let $VIM = '/c/Program Files (x86)/Vim'
     set runtimepath^=/c/Program\ Files\ (x86)/Vim/vim82
 endif
-if executable('grep') == 1   "executable() returns '-1' for 'not implemented...'
-    let &g:grepprg='grep -n' "use grep (and prefix line #), instead of findstr
-endif
-" let &printfont = &guifont "print using the same font as guifont
-set printoptions+=number:y  "default is (number:n ⇒ no line numbers)
-set printoptions+=left:5pc  "default is (left:10pc,right:5pc,top:5pc,bottom:5pc)
 
 "INTERFACE {{{1
 "=======================================================
@@ -280,6 +244,9 @@ augroup END
 "PACKAGES/PLUGINS {{{1
 "=======================================================
 " TRIAL PLUGINS
+if executable('fzf') == 1   "executable() returns '-1' for 'not implemented...'
+    packadd! fzf-vim       "Extra fzf functionality in vim
+endif
 packadd! characterize  "Tim Pope plugin extending `ga` information
 packadd! colorizer
 "mapping: <leader>c mapped to ':ColorToggle'
@@ -400,17 +367,40 @@ let g:NERDTreeAutoDeleteBuffer=1 " Auto delete the buffer of deleted file
 "mapping: <leader>N mapped to :NERDTree
 
 packadd! airline            "fancy status/tabline for vim
-" use powerline fonts for gui vim
 if has('gui_running')
+    " use powerline fonts for gui vim
     let g:airline_powerline_fonts = 1 "use powerline symbols (only available for some fonts)
     if !exists('g:airline_symbols')
         let g:airline_symbols = {}
     endif
     let g:airline_symbols.colnr = '' "no column number symbol (it wasn't working)
 else
-    let g:airline_powerline_fonts = 0 "don't use powerline symbols (only available for some fonts)
-    let g:airline_symbols_ascii = 1   "use plain ascii symbols
+    " use powerline fonts for terminal vim
+    " let g:airline_powerline_fonts = 1 "use powerline symbols (only available for some fonts)
+    " let g:airline_symbols_ascii = 1
 endif
+
+" airline theme
+" let g:airline_theme='google_dark'     "colorful/understated green/purplish-blue/orange
+let g:airline_theme='ravenpower'      "non-distracting grey/blue/orange
+" # alert colors taken from murmur.vim
+" let s:cterm_alert     = 88   " Modified file alert color
+" let s:gui_alert       = '#870000'
+" let g:airline#themes#ravenpower#palette.normal_modified = {'airline_c': [s:gui_alert, s:N2[1], s:cterm_alert, s:N2[3], ''] ,}
+" let g:airline#themes#ravenpower#palette.insert_modified = {'airline_c': [s:gui_alert, s:N2[1], s:cterm_alert, s:N2[3] ''] ,}
+" let g:airline#themes#ravenpower#palette.visual_modified = {'airline_c': [s:gui_alert, '', s:cterm_alert, '', ''] ,}
+" let g:airline_theme='dark'            "default yellow/blue/orange
+" let g:airline_theme='codedark'        "codedark theme blue/yellow/grey
+" let g:airline_theme='bubblegum'       "pastel colors green/blue/pink
+" let g:airline_theme='fairyfloss'      "similar to codedark blue/green/red
+" let g:airline_theme='jellybeans'      "similar to codedark blue/green/red
+" let g:airline_theme='murmur'          "like jellybeans w/ colored file blue/green/orange
+" let g:airline_theme='ouo'             "like jellybeans w/ colored file blue/green/orange
+" let g:airline_theme='onedark'         "pastel colors green/blue/pink
+" let g:airline_theme='alduin'          "pastel colors/bar purple/grey/beige
+" let g:airline_theme='cool'            "colorful lines blue/green/red bar
+" let g:airline_theme='xtermlight'      "light bar-bg blue/green/orange
+
 " don't display encoding if utf-8
 call airline#parts#define_condition('ffenc', '&fenc !~? "utf-8"')
 " only display SPELL indicator in wide windows
@@ -449,7 +439,7 @@ let g:airline_mode_map = {
 let g:airline_detect_spelllang=0
 " show word count for text-based file types
 let g:airline#extensions#wordcount#filetypes =
-    \ ['asciidoc', 'help', 'mail', 'markdown', 'org', 'plaintex', 'rst', 'tex', 'text']
+    \ ['asciidoc', 'help', 'mail', 'markdown', 'nroff', 'org', 'plaintex', 'rst', 'tex', 'text']
 
 " display buffer number instead of hunks/branch info
 " let g:airline_section_b = airline#section#create_left(['[%n]']) "buffer # (no hunks, branch)
@@ -459,8 +449,8 @@ let g:airline#extensions#wordcount#filetypes =
 "     return '"[%3b][0x%02B]"'
 " endfunction
 " let g:airline_section_y = airline#section#create_right(['ffenc', "charcodes"]) "add charcodes
-
-let g:airline_section_y = airline#section#create_right(['ffenc','[%3b|x%02B]']) "add charcodes
+" let g:airline_section_y = airline#section#create_right(['ffenc', '[%3b|x%02B]']) "add charcodes
+" let g:airline_section_x = airline#section#create_right(['tagbar', 'filetype', '[%3b|x%02B]']) "add charcodes
 
 " skip whitespace checks per filetype
 " checks:  [ 'indent', 'trailing', 'long', 'mixed-indent-file', " 'conflicts' ]
@@ -475,13 +465,19 @@ packadd! ScrollColors       "Scroll through color schemes
 "  :SCROLL or :COLOR => colorscheme browser
 "  :CN/:CP => Next Color-Scheme / Previous Color-Scheme
 packadd! setcolors          "another colorscheme scroller
-let s:reversible = 'gruvbox one solarized8'
-let s:light = 'seagrey-light vanilla-cake spring-night'
-let s:blue = 'atlantis codeschool colorsbox-material lost-shrine mod8 moonlight pink-moon plastic seagrey-dark termschool two-firewatch vrunchbang-dark yellow-moon'
-let s:dark = 'Kafka ayu colorsbox-stbright colorsbox-steighties colorsbox-stnight office-dark slate xoria256 jellybeans badwolf molokai tender'
-let g:auto_colors = split(s:reversible.' '.s:light.' '.s:blue.' '.s:dark)
+if has('gui_running')
+    let s:reversible = 'gruvbox one solarized8'
+    let s:light = 'seagrey-light vanilla-cake spring-night'
+    let s:blue = 'atlantis codeschool colorsbox-material lost-shrine mod8 moonlight pink-moon plastic seagrey-dark termschool two-firewatch vrunchbang-dark yellow-moon'
+    let s:dark = 'codedark Kafka ayu colorsbox-stbright colorsbox-steighties colorsbox-stnight office-dark slate jellybeans badwolf molokai tender'
+    let g:auto_colors = split(s:reversible.' '.s:light.' '.s:blue.' '.s:dark)
+else
+    let g:auto_colors = split('Kafka atlantis codedark colorsbox-stnight cosmic_latte edge gruvbox gruvbox-material OceanicNext one plastic solarized8 solarized8_flat spring-night tender')
+endif
 
 "Color Schemes
+packadd! code-dark      "code-dark colorscheme
+packadd! airline-themes "airline-themes
 packadd! darkest        "darkest color schemes
 packadd! lightest       "lightest color schemes
 packadd! midrange       "midrange color schemes
@@ -517,6 +513,8 @@ cnoremap <C-BS> <C-w>
 "Launch Explorer
 if has('win32') || has('win64')
     noremap <silent> <leader>EE :set noshellslash<CR>:silent !start explorer %:p:h:8<CR>:set shellslash<CR><ESC>
+elseif !has('gui_running')
+    noremap <silent> <leader>EE :!setsid nautilus %:h<CR><ESC>
 endif
 
 "Toggle line wrap
@@ -555,7 +553,8 @@ endif
 "   COLOR SCHEME MAPPINGS
 nnoremap <F5> :colorscheme gruvbox\|redraw\|echo g:colors_name<CR>
 nnoremap <F6> :colorscheme one\|redraw\|echo g:colors_name<CR>
-nnoremap <F7> :colorscheme Kafka\|redraw\|echo g:colors_name<CR>
+" nnoremap <F7> :colorscheme Kafka\|redraw\|echo g:colors_name<CR>
+nnoremap <F7> :colorscheme codedark\|redraw\|echo g:colors_name<CR>
 "<F8> mappet to setcolors function NextColor (cycles subset of colorschemes)
 " NextColor(0) chooses a random color scheme
 nnoremap <F8> :call NextColor(1)<CR>
@@ -630,12 +629,41 @@ nnoremap <leader>c :ColorToggle<CR>
 nnoremap <leader>s :Scratch<CR>
 nnoremap <leader>S :ScratchPreview<CR>
 
-"CtrlP Mappings:
-nnoremap <space><space> :CtrlPMixed<CR>
-nnoremap <leader><C-P> :CtrlPLine<CR>
+"CtrlP Mappings
+nnoremap <leader><C-P> :CtrlPMixed<CR>
 
 "FZF Mappings
-nnoremap <C-F> :FZF<CR>
+if executable('fzf') == 1   "executable() returns '-1' for 'not implemented...'
+    nnoremap <C-F> :FZF<CR>
+
+    "FZF-vim Mappings
+    nnoremap <space><space> :History<CR>
+    nnoremap <leader>f :Files<CR>
+    nnoremap <leader>Ff :GFiles<CR>
+    nnoremap <leader>FF :GFiles?<CR>
+    nnoremap <leader>Fg :BCommits<CR>
+    nnoremap <leader>FG :Commits<CR>
+    nnoremap <leader>Fb :Buffers<CR>
+    nnoremap <leader>Fc :Colors<CR>
+    nnoremap <leader>FC :Commands<CR>
+    nnoremap <leader>Fl :BLines<CR>
+    nnoremap <leader>FL :Lines<CR>
+    nnoremap <leader>Ft :BTags<CR>
+    nnoremap <leader>FT :Tags<CR>
+    nnoremap <leader>Fe :Filetypes<CR>
+    nnoremap <leader>Fm :Marks<CR>
+    nnoremap <leader>FM :Maps<CR>
+    nnoremap <leader>Fw :Windows<CR>
+    nnoremap <leader>F: :History:<CR>
+    nnoremap <leader>F/ :History/<CR>
+    nnoremap <leader>Fs :Snippets<CR>
+    nnoremap <leader>Fh :Helptags<CR>
+
+    "FZF-vim Mapping for selecting mappings
+    nnoremap <leader><tab> <plug>(fzf-maps-n)
+    xnoremap <leader><tab> <plug>(fzf-maps-x)
+    onoremap <leader><tab> <plug>(fzf-maps-o)
+endif
 
 "NERDTree Mappings
 nnoremap <leader>N :NERDTree<CR>
@@ -685,6 +713,35 @@ nnoremap <leader>3 :setlocal foldlevel=3<CR>
 
 " Mapped Functions {{{2
 "-------------------------------------------------------
+    highlight! Normal ctermbg=NONE
+
+nnoremap <leader>t :call <SID>TransparencyToggle()<CR>
+function! s:TransparencyToggle()
+    if has_key(hlget('Normal', v:true)[0], 'ctermbg') ||
+     \ has_key(hlget('EndOfBuffer', v:true)[0], 'ctermbg')
+        if has_key(hlget('Normal', v:true)[0], 'ctermbg')
+            let g:prev_normal_ctermbg = hlget('Normal', v:true)[0]['ctermbg']
+            " highlight! Normal ctermbg=NONE
+            call hlset([#{name: 'Normal', ctermbg: 'NONE'}])
+        endif
+        if has_key(hlget('EndOfBuffer', v:true)[0], 'ctermbg')
+            let g:prev_eob_ctermbg = hlget('EndOfBuffer', v:true)[0]['ctermbg']
+            call hlset([#{name: 'EndOfBuffer', ctermbg: 'NONE'}])
+        endif
+    elseif exists("g:prev_normal_ctermbg") || exists("g:prev_eob_ctermbg")
+        if exists("g:prev_normal_ctermbg")
+            if hlset([#{name: 'Normal', ctermbg: g:prev_normal_ctermbg}])
+                unlet g:prev_normal_ctermbg
+            endif
+        endif
+        if exists("g:prev_eob_ctermbg")
+            if hlset([#{name: 'EndOfBuffer', ctermbg: g:prev_eob_ctermbg}])
+                unlet g:prev_eob_ctermbg
+            endif
+        endif
+    endif
+endfunction
+
 " toggle quickfix window
 nnoremap <silent> <leader>q :call <SID>QuickfixToggle()<CR>
 function! s:QuickfixToggle()
@@ -731,12 +788,12 @@ function! s:LocationListToggle()
     endif
 endfunction
 
-nnoremap <silent> <leader>f :call <SID>FoldColumnToggle()<CR>
+nnoremap <silent> <leader>\| :call <SID>FoldColumnToggle()<CR>
 " toggle fold columns
 function! s:FoldColumnToggle()
     let &l:foldcolumn = (&l:foldcolumn) ? 0 : 3
 endfunction
-" nnoremap <silent> <expr> <leader>F (&l:foldcolumn) ? ":setl fdc=0<CR>" : "setl fdc=3<CR>"
+" nnoremap <silent> <expr> <leader>\| (&l:foldcolumn) ? ":setl fdc=0<CR>" : "setl fdc=3<CR>"
 
 " toggle `help` and `text` filetypes for current buffer
 nnoremap <silent> <leader><F1> :call <SID>HelpToTextToggle()<CR>
@@ -760,15 +817,20 @@ endfunction
 
 "MISCELLANEOUS {{{1
 "=======================================================
-cabbrev pandoc! !pandoc %:p:S -o %:p:h:8/%:t:r.html -s --toc -c notes.css
-cabbrev pandocT! !pandoc %:p:S -o %:p:h:8/%:t:r.html -s --toc -c notes.css -M title="%:t:r"
+if has('win32') || has('win32unix')
+    cabbrev pandoc! !pandoc %:p:S -o %:p:h:8/%:t:r.html -s --toc -c notes.css
+    cabbrev pandocT! !pandoc %:p:S -o %:p:h:8/%:t:r.html -s --toc -c notes.css -M title="%:t:r"
+else
+    cabbrev pandoc! !pandoc %:p:S -o "%:p:h/%:t:r.html" -s --toc -c notes.css
+    cabbrev pandocT! !pandoc %:p:S -o "%:p:h/%:t:r.html" -s --toc -c notes.css -M title="%:t:r"
+endif
 
 " DEREK WYATT: The following beast is something i didn't write... it will
 " return the syntax highlighting group that the current "thing" under the
 " cursor belongs to -- very useful for figuring out what to change as far as
 " syntax highlighting goes.
 "   'lo' uses 'synIDtrans()' which follows links to base highlight group.
-nnoremap <silent> <leader><C-I> :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name")
+nnoremap <silent> <leader>H :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name")
      \ . '> trans<' . synIDattr(synID(line("."),col("."),0),"name")
      \ . "> lo<" . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name")
      \ . ">"<CR>
