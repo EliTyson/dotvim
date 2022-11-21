@@ -103,13 +103,15 @@ else
         try|set guifont=Hack 10|catch|endtry
     endif
 
-    set guicursor+=c:ver20 "(gcr) use vertical bar in command line
-    " set guicursor+=n-v:block-Cursor-blinkon0   "(gcr)no blink cursor
     if has('win32') || has('win64')
         try|set guifont=Hack:h9|catch|endtry    "good programming font with decent utf support
     elseif has('linux')
         try|set guifont=Hack 10|catch|endtry    "format for Linux
     endif
+endif
+if has('nvim') || has('gui_running')
+    set guicursor+=c:ver20 "(gcr) use vertical bar in command line
+    " set guicursor+=n-v:block-Cursor-blinkon0   "(gcr)no blink cursor
 endif
 
 set listchars=tab:▸\ ,eol:¬     "vimcast #1 textmate tabstops(u25b8) and EOL(u00ac)
@@ -244,16 +246,21 @@ augroup END
 "PACKAGES/PLUGINS {{{1
 "=======================================================
 " TRIAL PLUGINS
-if executable('fzf') == 1   "executable() returns '-1' for 'not implemented...'
-    packadd! fzf-vim       "Extra fzf functionality in vim
-endif
-packadd! characterize  "Tim Pope plugin extending `ga` information
 packadd! colorizer
 "mapping: <leader>c mapped to ':ColorToggle'
 " red #123456
 
+if has('win32') || has('win64')
+    packadd! ctrlp              "ctrlp.vim fuzzy file finder
+    let g:ctrlp_cache_dir =$HOME.'/AppData/Roaming/Vim/ctrlp_cache//'       " sets cache dir
+
+    let g:ctrlp_arg_map = 1     "<Ctrl-Y> and <Ctrl-O> require h,v,t,<CR> as default behavior
+    " let g:ctrlp_switch_buffer = 'et' "only jumps to buf in window w/ <CR>; tab w/ <C-t>
+    " let g:ctrlp_open_multiple_files = 'h'   " open multiple files in horizontal splits
+endif
+
 "TERMINAL PLUGINS
-if !has('gui_running')
+if !has('gui_running') && !has('nvim')
     " for console vim
     packadd! terminus   "Changes cursor, mouse, etc. for terminal vim
 endif
@@ -281,6 +288,7 @@ packadd! surround           "Tim Pope's surround.vim
 packadd! unimpaired         "Tim Pope's unimpaired.vim
 packadd! abolish            "Tim Pope's abolish.vim
 packadd! repeat             "Tim Pope's repeat.vim
+packadd! characterize       "Tim Pope's characterize.vim extending `ga`
 packadd! tabular            "tabular.vim for aligning text
 packadd! exchange           "exchange with cx operator (or v_X)
 
@@ -291,13 +299,9 @@ packadd! traces             "previews of ranges and substitutions
 " VISIBLE PLUGINS
 packadd! fugitive           "Git integration plugin
 
-packadd! ctrlp              "ctrlp.vim fuzzy file finder
-if has('win32') || has('win64')
-    let g:ctrlp_cache_dir =$HOME.'/AppData/Roaming/Vim/ctrlp_cache//'       " sets cache dir
+if executable('fzf') == 1   "executable() returns '-1' for 'not implemented...'
+    packadd! fzf            "Extra fzf functionality in vim
 endif
-let g:ctrlp_arg_map = 1     "<Ctrl-Y> and <Ctrl-O> require h,v,t,<CR> as default behavior
-" let g:ctrlp_switch_buffer = 'et' "only jumps to buf in window w/ <CR>; tab w/ <C-t>
-" let g:ctrlp_open_multiple_files = 'h'   " open multiple files in horizontal splits
 
 packadd! ale
 let g:ale_use_global_executables = 1 "force global executables
@@ -324,6 +328,10 @@ if has('python3')
     packadd! ultisnips
     packadd! snippets
     packadd! arduino-snippets
+    " if has('nvim')
+    "     " let g:UltiSnipsExpandTrigger='<tab>'
+    "     let g:UltiSnipsExpandTrigger ='<C-Space>'
+    " endif
     "Unlike windows, Linux is case-sensitive
     let g:UltiSnipsSnippetDirectories=["UltiSnips", "ultisnips"]
     " let g:UltiSnipsEnableSnipMate = 0 " Don't look for SnipMate snippets
@@ -531,7 +539,7 @@ nnoremap <leader>vs :source $MYVIMRC<CR>
 nnoremap <leader># :sb#<CR>
 nnoremap <silent> <leader><leader> :let v:hlsearch = (v:hlsearch) ? 0 : 1<CR>
 
-"uppercase/lowercase/capitalize/capitalize
+"UPPERCASE/lowercase/Capitalize-toggles
 inoremap <S-Up> <ESC>gUiwgi
 inoremap <S-Down> <ESC>guiwgi
 inoremap <C-Up> <ESC>guiw~gi
@@ -596,7 +604,7 @@ vmap <C-DOWN> ]egv
 " http://vimcasts.org/episodes/the-edit-command/
 " note: %% now allows expansion of the current file directory
 "   ew (edit in window); es/ev (edit in split/vertical-split); et (edit in tab)
-cnoremap %% <C-R>=fnameescape(expand('%:h')).'/'<CR>
+cnoremap %% <C-R>=fnameescape(expand('%:p:h')).'/'<CR>
 " nnoremap <leader>ew :e <C-R>=fnameescape(expand('%:h')).'/'<CR>
 " nnoremap <leader>es :sp <C-R>=fnameescape(expand('%:h')).'/'<CR>
 " nnoremap <leader>ev :vsp <C-R>=fnameescape(expand('%:h')).'/'<CR>
@@ -629,9 +637,6 @@ nnoremap <leader>c :ColorToggle<CR>
 nnoremap <leader>s :Scratch<CR>
 nnoremap <leader>S :ScratchPreview<CR>
 
-"CtrlP Mappings
-nnoremap <leader><C-P> :CtrlPMixed<CR>
-
 "FZF Mappings
 if executable('fzf') == 1   "executable() returns '-1' for 'not implemented...'
     nnoremap <C-F> :FZF<CR>
@@ -663,6 +668,11 @@ if executable('fzf') == 1   "executable() returns '-1' for 'not implemented...'
     nnoremap <leader><tab> <plug>(fzf-maps-n)
     xnoremap <leader><tab> <plug>(fzf-maps-x)
     onoremap <leader><tab> <plug>(fzf-maps-o)
+endif
+
+"CtrlP Mappings
+if exists(":CtrlP")
+    nnoremap <leader><C-P> :CtrlPMixed<CR>
 endif
 
 "NERDTree Mappings
@@ -715,29 +725,41 @@ nnoremap <leader>3 :setlocal foldlevel=3<CR>
 "-------------------------------------------------------
     highlight! Normal ctermbg=NONE
 
-nnoremap <leader>t :call <SID>TransparencyToggle()<CR>
+nnoremap <silent> <leader>t :call <SID>TransparencyToggle()<CR>
 function! s:TransparencyToggle()
-    if has_key(hlget('Normal', v:true)[0], 'ctermbg') ||
-     \ has_key(hlget('EndOfBuffer', v:true)[0], 'ctermbg')
-        if has_key(hlget('Normal', v:true)[0], 'ctermbg')
-            let g:prev_normal_ctermbg = hlget('Normal', v:true)[0]['ctermbg']
-            " highlight! Normal ctermbg=NONE
-            call hlset([#{name: 'Normal', ctermbg: 'NONE'}])
-        endif
-        if has_key(hlget('EndOfBuffer', v:true)[0], 'ctermbg')
-            let g:prev_eob_ctermbg = hlget('EndOfBuffer', v:true)[0]['ctermbg']
-            call hlset([#{name: 'EndOfBuffer', ctermbg: 'NONE'}])
-        endif
-    elseif exists("g:prev_normal_ctermbg") || exists("g:prev_eob_ctermbg")
-        if exists("g:prev_normal_ctermbg")
-            if hlset([#{name: 'Normal', ctermbg: g:prev_normal_ctermbg}])
-                unlet g:prev_normal_ctermbg
+    if !has('nvim')
+        if has_key(hlget('Normal', v:true)[0], 'ctermbg') ||
+        \ has_key(hlget('EndOfBuffer', v:true)[0], 'ctermbg')
+            if has_key(hlget('Normal', v:true)[0], 'ctermbg')
+                let g:prev_normal_ctermbg = hlget('Normal', v:true)[0]['ctermbg']
+                " highlight! Normal ctermbg=NONE
+                call hlset([{name: 'Normal', ctermbg: 'NONE'}])
+            endif
+            if has_key(hlget('EndOfBuffer', v:true)[0], 'ctermbg')
+                let g:prev_eob_ctermbg = hlget('EndOfBuffer', v:true)[0]['ctermbg']
+                call hlset([{name: 'EndOfBuffer', ctermbg: 'NONE'}])
+            endif
+        elseif exists("g:prev_normal_ctermbg") || exists("g:prev_eob_ctermbg")
+            if exists("g:prev_normal_ctermbg")
+                if hlset([{name: 'Normal', ctermbg: g:prev_normal_ctermbg}])
+                    unlet g:prev_normal_ctermbg
+                endif
+            endif
+            if exists("g:prev_eob_ctermbg")
+                if hlset([{name: 'EndOfBuffer', ctermbg: g:prev_eob_ctermbg}])
+                    unlet g:prev_eob_ctermbg
+                endif
             endif
         endif
-        if exists("g:prev_eob_ctermbg")
-            if hlset([#{name: 'EndOfBuffer', ctermbg: g:prev_eob_ctermbg}])
-                unlet g:prev_eob_ctermbg
-            endif
+    " Simplified Neovim version (does not store previous bkg)
+    else
+        if exists("g:has_transparent_bkg") && g:has_transparent_bkg
+            " if bkg is transparent, make it black (does not restore old bkg)
+            highlight Normal ctermbg = 0
+            let g:has_transparent_bkg = v:false
+        else
+            highlight Normal ctermbg = NONE
+            let g:has_transparent_bkg = v:true
         endif
     endif
 endfunction
