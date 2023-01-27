@@ -3,8 +3,10 @@
 " Maintainer:   nightsense
 " License:      MIT
 
+" if !(has('termguicolors') && &termguicolors) && !has('gui_running')
+"     \ && (!exists('&t_Co') || &t_Co < 256)
 if !(has('termguicolors') && &termguicolors) && !has('gui_running')
-    \ && (!exists('&t_Co') || &t_Co < 256)
+    \ && ((!exists('&t_Co') && !has('nvim')) || &t_Co < 256)
   echoerr '[cosmic_latte] There are not enough colors.'
   finish
 endif

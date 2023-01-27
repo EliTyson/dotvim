@@ -40,6 +40,7 @@ else
     if !has('nvim')
         set viminfofile=$VIM/.viminfo
     endif
+    set undofile                                       "create undo file when saving buffer
 endif
 if has('win32unix') && !has('nvim')                      "cygwin settings
     set packpath^=$HOME/vimfiles//                       "sets directory to save views
@@ -174,7 +175,7 @@ set smartcase  "(scs)upper-case sensitive search (overrides 'ignorecase')
 augroup filetype_text
     autocmd!
     " automatically load views for text files
-    autocmd FileType text silent loadview
+    autocmd FileType text silent! loadview
 augroup END
 
 augroup filetype_html
@@ -260,7 +261,7 @@ if has('win32') || has('win64')
 endif
 
 "TERMINAL PLUGINS
-if !has('gui_running') && !has('nvim')
+if !has('nvim') && !has('gui_running')
     " for console vim
     packadd! terminus   "Changes cursor, mouse, etc. for terminal vim
 endif
@@ -294,7 +295,9 @@ packadd! exchange           "exchange with cx operator (or v_X)
 
 " SEARCH PLUGINS
 packadd! visual-star-search "enables */# searches on visual selections
-packadd! traces             "previews of ranges and substitutions
+if !has('nvim')
+    packadd! traces             "previews of ranges and substitutions
+endif
 
 " VISIBLE PLUGINS
 packadd! fugitive           "Git integration plugin
@@ -311,7 +314,8 @@ let g:ale_hover_cursor = 0 "hover functionality (echo line)
     " Fix Python files with 'bar'.
     " Don't fix 'html' files.
     " Fix everything else with 'foo'.
-let g:ale_linters = {'python': ['flake8', 'pylint'],} " ['pylint']
+" let g:ale_linters = {'python': ['flake8', 'pylint'],} " ['pylint']
+let g:ale_linters = {'python': ['pylint'],}
 let g:ale_echo_msg_format = '[%linter%:%severity%] %code: %%s'
 " let g:ale_linters_ignore = {'python': ['pylint'],}
 " let g:ale_open_list = 1 "will cause ALE to auto open loclist
@@ -702,6 +706,7 @@ if has('browse')
 endif
 
 digraph ## 9552 "═ digraph (Box drawings double horizontal)
+digraph zw 8204 " digraph of a zero width non joiner character (U+200C)
 
 "Quickfix and Location List movement based on cursor position
 nnoremap [gl :lbefore<CR>
