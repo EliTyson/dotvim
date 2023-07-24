@@ -18,8 +18,12 @@ set history=100       "(hi) command line history (Default:50)
 " set undolevels=1000 "(ul) Max # of undos (Default: 10000)
 "don't expand these filetypes
 " let &printfont = &guifont "print using the same font as guifont
-set printoptions+=number:y  "default is (number:n ⇒ no line numbers)
-set printoptions+=left:5pc  "default is (left:10pc,right:5pc,top:5pc,bottom:5pc)
+if !has('nvim')
+    " nvim does not utilize `:hardcopy` and uses `[range]:TOhtml` instead and
+    " print the resulting html file (NOTE: folds are not expanded)
+    set printoptions+=number:y  "default is (number:n ⇒ no line numbers)
+    set printoptions+=left:5pc  "default is (left:10pc,right:5pc,top:5pc,bottom:5pc)
+endif
 set wildignore+=*\\^ntuser.*,*\\AppData\\*,*.dat,*.ini,*.exe,*.ffindex
 if has('win32') || has('win32unix')
     set path+=$HOME,$HOME/Desktop                      "set path to search for find commands
