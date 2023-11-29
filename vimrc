@@ -16,7 +16,6 @@ set hidden            "(hid) allow hiding unsaved buffers
 set shellslash        "(ssl) force forward slash for expanded filenames
 set history=100       "(hi) command line history (Default:50)
 " set undolevels=1000 "(ul) Max # of undos (Default: 10000)
-"don't expand these filetypes
 " let &printfont = &guifont "print using the same font as guifont
 if !has('nvim')
     " nvim does not utilize `:hardcopy` and uses `[range]:TOhtml` instead and
@@ -25,6 +24,7 @@ if !has('nvim')
     set printoptions+=left:5pc  "default is (left:10pc,right:5pc,top:5pc,bottom:5pc)
 endif
 set wildignore+=*\\^ntuser.*,*\\AppData\\*,*.dat,*.ini,*.exe,*.ffindex
+"don't expand these filetypes
 if has('win32') || has('win32unix')
     set path+=$HOME,$HOME/Desktop                      "set path to search for find commands
     cd $HOME/Desktop                                   "sets current directory
