@@ -39,12 +39,12 @@ if has('win32') || has('win32unix')
     if executable('grep') == 1   "executable() returns '-1' for 'not implemented...'
         let &g:grepprg='grep -n' "use grep (and prefix line #), instead of findstr
     endif
-else
-    let $VIM=$HOME.'/.vim'
-    if !has('nvim')
-        set viminfofile=$VIM/.viminfo
-    endif
-    set undofile                                       "create undo file when saving buffer
+" else
+"     let $VIM=$HOME.'/.vim'
+"     if !has('nvim')
+"         set viminfofile=$VIM/.viminfo
+"     endif
+"     set undofile                                       "create undo file when saving buffer
 endif
 if has('win32unix') && !has('nvim')                      "cygwin settings
     set packpath^=$HOME/vimfiles//                       "sets directory to save views
@@ -320,6 +320,7 @@ let g:ale_hover_cursor = 0 "hover functionality (echo line)
     " Fix everything else with 'foo'.
 " let g:ale_linters = {'python': ['flake8', 'pylint'],} " ['pylint']
 let g:ale_linters = {'python': ['pylint'],}
+" let g:ale_linters = {'python': ['flake8'],}
 let g:ale_echo_msg_format = '[%linter%:%severity%] %code: %%s'
 " let g:ale_linters_ignore = {'python': ['pylint'],}
 " let g:ale_open_list = 1 "will cause ALE to auto open loclist
