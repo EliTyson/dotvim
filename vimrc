@@ -10,11 +10,11 @@ endif
 "GENERAL {{{1
 "=======================================================
 filetype plugin indent on   "ensure filetype detection enabled
-syntax enable               "enable syntax highlighting, 'on' forces defaults
+syntax enable               "enable syntax highlighting, `enable` is default
 set commentstring=#\ %s    "(cms) set default comment string to use '#'
 set hidden            "(hid) allow hiding unsaved buffers
 set shellslash        "(ssl) force forward slash for expanded filenames
-set history=100       "(hi) command line history (Default:50)
+set history=100       "(hi) command line history (Default:50/200; nvim 1000)
 " set undolevels=1000 "(ul) Max # of undos (Default: 10000)
 " let &printfont = &guifont "print using the same font as guifont
 if !has('nvim')
@@ -23,7 +23,7 @@ if !has('nvim')
     set printoptions+=number:y  "default is (number:n ⇒ no line numbers)
     set printoptions+=left:5pc  "default is (left:10pc,right:5pc,top:5pc,bottom:5pc)
 endif
-set wildignore+=*\\^ntuser.*,*\\AppData\\*,*.dat,*.ini,*.exe,*.ffindex
+set wildignore+=*\\^ntuser.*,*\\AppData\\*,*.dat,*.ini,*.exe,*.ffindex,*.o,*.obj
 "don't expand these filetypes
 if has('win32') || has('win32unix')
     set path+=$HOME,$HOME/Desktop                      "set path to search for find commands
@@ -74,7 +74,7 @@ set virtualedit=all    "(ve) allow cursor out of bounds
 set scrolloff=4        "(so)minimal # of lines above/below cursor
 set cmdheight=1        "(ch) command height (default is 1)
 set laststatus=2       "(ls) status line always on (0 never; 1 split)
-set lazyredraw         "(lz) Don't update the display while executing macros
+" set lazyredraw         "(lz) Don't update the display while executing macros
 set showcmd            "(sc) show commands as typed (default on)
 set showmode           "(smd)show mode at bottom of screen (default on)
 set breakindent        "(bri)indents broken lines to match 1st line
@@ -120,6 +120,7 @@ if has('nvim') || has('gui_running')
 endif
 
 set listchars=tab:▸\ ,eol:¬     "vimcast #1 textmate tabstops(u25b8) and EOL(u00ac)
+set listchars+=trail:-,nbsp:+   "(lcs) and trail characters and no-break-space
 """ STATUS LINE SETTINGS FROM DEREK WYATT """
 set statusline=%f\ %m\ %r\ Line:%l/%L[%p%%]\ Col:%c\ Buf:%n\ [%b][0x%B]
 
@@ -131,7 +132,7 @@ endif
 set wrap                    "word wrap (on by default) (soft-wraps text)
 " set wrapmargin=5          "(if tw=0) # of chars to win border before wrapping starts
 " set textwidth=80          "(tw)# of columns before new row automatically starts
-set whichwrap=<,>,[,]       "(ww) enable <left>/<right> to loop up/down line NV,IR modes
+set whichwrap=<,>,[,]       "(ww) enable <left>/<right> to loop up/down line N,V,I,R modes
 set formatoptions+=l        "(fo) long lines already past tw not auto-wrapped in insert mode
 " set formatoptions+=a      "(fo) automatic formatting of paragraphs
 " set nrformats+=alpha      "(nf) inc [A-Z a-z] (disrupts linewise /)
@@ -145,7 +146,6 @@ set expandtab      "expand <Tab> to spaces
 set tabstop=4      "(ts)spaces for a \t character
 set shiftwidth=0   "(sw)(0=> follow ts) # spaces for auto indent (>> <<)
 set softtabstop=-1 "(sts)(-1=> follow sw) spaces for <TAB> & <BS> keys
-set backspace=2    "(bs)<BS> options: 1(indent,eol); 2(indent,eol,start)
 set shiftround     "(sr)round '<' '>' (same as i_ and i_) to multiples of sw
 
 "SEARCH {{{1
@@ -371,7 +371,7 @@ if has('win32') || has('win64')
     let g:NERDTreeBookmarksFile=$HOME.'/vimfiles/.NERDTreeBookmarks' "set bmark loc
     let g:NERDTreeIgnore=['\c^ntuser\..*'] "don't show ntuser.* files
 else
-    let g:NERDTreeBookmarksFile=$VIM.'/.NERDTreeBookmarks'
+    let g:NERDTreeBookmarksFile=$HOME.'/.vim/.NERDTreeBookmarks'
 endif
 let g:NERDTreeAutoDeleteBuffer=1 "auto bd on file delete/rename
 let g:NERDTreeShowBookmarks=1   "show bookmarks by default
@@ -501,15 +501,16 @@ packadd! midrange       "midrange color schemes
 
 "MAPPINGS {{{1
 "=======================================================
-" Leader settings (<leader>, <localleader>)
+"Leader settings (<leader>, <localleader>)
 :let mapleader = ','
 :let maplocalleader = '\'
 nnoremap <BS> ,
 
-" jk as alternate to <C-C> or <ESC>
+"jk as alternate to <C-C> or <ESC> (ignore if typing alphabet)
 inoremap jk <ESC>
+inoremap ijk ijk
 
-" use visual rather than linewise up/down (except with counts)
+"use visual rather than linewise up/down (except with counts)
 noremap <expr> j (v:count ? 'j' : 'gj')
 noremap <expr> k (v:count ? 'k' : 'gk')
 
@@ -518,6 +519,10 @@ nnoremap Q @@
 
 "make Y behave similar to C and D rather than just being yy
 nnoremap Y y$
+
+"move tab pages with Shift-Left and Shift-Right
+nnoremap <silent><S-Left> :<C-U>execute 'tabm-'..v:count1<CR>
+nnoremap <silent><S-Right> :<C-U>execute 'tabm+'..v:count1<CR>
 
 "Ctrl-A/Ctrl-E to move to beginning/end of command-line
 cnoremap <C-a> <Home>
@@ -535,7 +540,7 @@ elseif !has('gui_running')
 endif
 
 "Toggle line wrap
-nnoremap <silent> <leader>w :let &wrap = (&wrap) ? 0 : 1<CR>
+nnoremap <silent> <leader>w :let &wrap = (&wrap) ? 0 : 1<CR>:set wrap?<CR>
 
 "Toggle Paste Mode
 set pastetoggle=<Insert>
@@ -543,10 +548,10 @@ if !has('gui_running')
     map <leader>p :set invpaste<CR>
 endif
 
-nnoremap <leader>ve :split $MYVIMRC<CR>
-nnoremap <leader>vs :source $MYVIMRC<CR>
-nnoremap <leader># :sb#<CR>
-nnoremap <silent> <leader><leader> :let v:hlsearch = (v:hlsearch) ? 0 : 1<CR>
+noremap <leader>ve :split $MYVIMRC<CR>
+noremap <leader>vs :source $MYVIMRC<CR>
+noremap <leader># :sb#<CR>
+noremap <silent> <leader><leader> :let v:hlsearch = (v:hlsearch) ? 0 : 1<CR>
 
 "UPPERCASE/lowercase/Capitalize-toggles
 inoremap <S-Up> <ESC>gUiwgi
@@ -608,6 +613,12 @@ map <C-DOWN> ]e
 " Bubble multiple lines (NOTE: requires unimpaired.vim)
 vmap <C-Up> [egv
 vmap <C-DOWN> ]egv
+
+" Tmux Mappings
+if has_key(environ(), 'TMUX')
+    nnoremap <leader>tt :silent !tmux split-window -vl 10 -c %:h<CR>
+    nnoremap <leader>tw :silent !tmux split-window -fvl 10 -c %:h<CR>
+endif
 
 " Vimcast :Edit mapping to allow tab completion for current file's directory
 " http://vimcasts.org/episodes/the-edit-command/
@@ -733,9 +744,9 @@ nnoremap <leader>3 :setlocal foldlevel=3<CR>
 
 " Mapped Functions {{{2
 "-------------------------------------------------------
-    highlight! Normal ctermbg=NONE
+highlight Normal ctermbg=NONE
 
-nnoremap <silent> <leader>t :call <SID>TransparencyToggle()<CR>
+nnoremap <silent> <leader>T :call <SID>TransparencyToggle()<CR>
 function! s:TransparencyToggle()
     if !has('nvim')
         if has_key(hlget('Normal', v:true)[0], 'ctermbg') ||
