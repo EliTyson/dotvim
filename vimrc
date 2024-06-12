@@ -57,6 +57,7 @@ endif
 "INTERFACE {{{1
 "=======================================================
 "set t_Co=256          "256 color mode; rec'd for  Vim over SSH
+set notermguicolors    "nvim v0.10.0 enables by default
 try|colorscheme gruvbox|catch|try|colorscheme evening|catch|endtry|endtry
 " Make terminal Campbell blue
 highlight Terminal guibg=#012456
