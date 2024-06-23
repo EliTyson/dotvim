@@ -1,186 +1,77 @@
-" vim: foldmethod=marker
-if has('win32') || has('win32unix')
-    set pythonthreedll=python39.dll "was defaulting to python37.dll
-endif
-
-"--------------
-"   MY VIMRC   "
-"--------------
+" ____ ____ ____ ____ ____
+"||v |||i |||m |||r |||c ||
+"||__|||__|||__|||__|||__||
+"|/__\|/__\|/__\|/__\|/__\|
 
 "GENERAL {{{1
 "=======================================================
 filetype plugin indent on   "ensure filetype detection enabled
 syntax enable               "enable syntax highlighting, `enable` is default
-set commentstring=#\ %s    "(cms) set default comment string to use '#'
-set hidden            "(hid) allow hiding unsaved buffers
-set shellslash        "(ssl) force forward slash for expanded filenames
-set history=100       "(hi) command line history (Default:50/200; nvim 1000)
-" set undolevels=1000 "(ul) Max # of undos (Default: 10000)
-" let &printfont = &guifont "print using the same font as guifont
-if !has('nvim')
-    " nvim does not utilize `:hardcopy` and uses `[range]:TOhtml` instead and
-    " print the resulting html file (NOTE: folds are not expanded)
-    set printoptions+=number:y  "default is (number:n ⇒ no line numbers)
-    set printoptions+=left:5pc  "default is (left:10pc,right:5pc,top:5pc,bottom:5pc)
-endif
+set commentstring=#\ %s     "(cms) set default comment string to use '#'
 set wildignore+=*\\^ntuser.*,*\\AppData\\*,*.dat,*.ini,*.exe,*.ffindex,*.o,*.obj
-"don't expand these filetypes
-if has('win32') || has('win32unix')
-    set path+=$HOME,$HOME/Desktop                      "set path to search for find commands
-    cd $HOME/Desktop                                   "sets current directory
-    set viewdir=$HOME/vimfiles/views//                 "sets directory to save views
-    set directory=$HOME/AppData/Roaming/Vim//          "sets directory (used for swap files)
-    set backupdir=$HOME/AppData/Roaming/Vim//          "sets directory for write backups
-    set undodir=$HOME/AppData/Roaming/Vim//            "sets directory for undo files
-    set undofile                                       "create undo file when saving buffer
-    set viminfofile=$HOME/AppData/Roaming/Vim/_viminfo "sets file name for viminfo
-    " set shell=pwsh.exe shellcmdflag=-NoProfile\ -NoLogo\ -NonInteractive\ -Command
-    " set shellquote=\" shellpipe=> shellredir=> shellxquote=
-    if executable('grep') == 1   "executable() returns '-1' for 'not implemented...'
-        let &g:grepprg='grep -n' "use grep (and prefix line #), instead of findstr
-    endif
-" else
-"     let $VIM=$HOME.'/.vim'
-"     if !has('nvim')
-"         set viminfofile=$VIM/.viminfo
-"     endif
-"     set undofile                                       "create undo file when saving buffer
-endif
-if has('win32unix') && !has('nvim')                      "cygwin settings
-    set packpath^=$HOME/vimfiles//                       "sets directory to save views
-    set packpath+=/c/Program\ Files\ (x86)/Vim/vim82//
-    let $VIMRUNTIME = '/c/Program Files (x86)/Vim/vim82' "for syntax.vim
-    let $VIM = '/c/Program Files (x86)/Vim'
-    set runtimepath^=/c/Program\ Files\ (x86)/Vim/vim82
-endif
+set undofile                "(udf) create undo file when saving buffer
 
 "INTERFACE {{{1
 "=======================================================
-"set t_Co=256          "256 color mode; rec'd for  Vim over SSH
-set notermguicolors    "nvim v0.10.0 enables by default
+set notermguicolors     "(notgc) nvim v0.10.0 enables by default
 try|colorscheme gruvbox|catch|try|colorscheme evening|catch|endtry|endtry
-" Make terminal Campbell blue
-highlight Terminal guibg=#012456
-highlight link VimLineComment Comment
-set background=dark    "(bg) dark background (terminal defaults to light)
-set spell              "spell checking
-set splitbelow         "(sb/nosb) new split below
-set splitright         "(spr/nospr) new split to right
-set shortmess+=I       "(shm)disable the welcome screen
-set shortmess-=S       "(shm)do show search count message when searching!
-set number             "(nu)show line numbers
-set relativenumber     "(rnu)show relative numbers
-set ruler              "(ru)show cursor position below each window
-set virtualedit=all    "(ve) allow cursor out of bounds
-set scrolloff=4        "(so)minimal # of lines above/below cursor
-set cmdheight=1        "(ch) command height (default is 1)
-set laststatus=2       "(ls) status line always on (0 never; 1 split)
-" set lazyredraw         "(lz) Don't update the display while executing macros
-set showcmd            "(sc) show commands as typed (default on)
-set showmode           "(smd)show mode at bottom of screen (default on)
-set breakindent        "(bri)indents broken lines to match 1st line
-set linebreak          "(lbr)prevent word wrap from splitting words
-set showbreak=…        "(sbr)elipsis char (u2026) for soft-wrapped lines
-set wildmenu           "(wmnu) make the command-line completion better
-set visualbell         "(vb) use visual bell, `t_vb=` suppresses flash
-"set fillchars=""      "(fcs)get rid of characters in window separators
-"set colorcolumn=80    "(cc) comma separated list of highlighted columns
-"set cursorline        "(cul/nocul) highlight cursor's line
-if !has('gui_running')
-    "prevent vim background from overwriting terminal transparency
-    highlight! Normal ctermbg=NONE
-else
-    " set lines=99 columns=999 "maximize window
-    set lines=50 columns=100
-    "set guioptions=egmrLt "(go) settings w/ menu (default: 'egmrLtT')
-    set guioptions-=m      "get rid of menu
-    set guioptions-=t      "get rid of tear-off menu items
-    set guioptions-=T      "get rid of toolbar
-    set guioptions+=e      "use GUI tab bar (causes Airline issues)
-    set guioptions+=c      "use console dialogs instead of GUI ones
-    set guioptions+=!      "execute  external commands in a terminal window
-    set guitablabel=[%N]   "define tab text: tab number [#]
-    set guitablabel+=%h    "define tab text: help buffer is [help]
-    set guitablabel+=%t    "define tab text: show just filename (tail)
-    "good programming font with decent utf support
-    if has('win32')
-        try|set guifont=Hack:h9|catch|endtry
-    elseif has('gui_running') && !has('win32')
-        try|set guifont=Hack 10|catch|endtry
-    endif
-
-    if has('win32') || has('win64')
-        try|set guifont=Hack:h9|catch|endtry    "good programming font with decent utf support
-    elseif has('linux')
-        try|set guifont=Hack 10|catch|endtry    "format for Linux
-    endif
-endif
-if has('nvim') || has('gui_running')
-    set guicursor+=c:ver20 "(gcr) use vertical bar in command line
-    " set guicursor+=n-v:block-Cursor-blinkon0   "(gcr)no blink cursor
-endif
-
+"prevent vim background from overwriting terminal transparency
+highlight! Normal ctermbg=NONE
+" highlight link VimLineComment Comment
+set splitbelow          "(sb/nosb) new split below
+set splitright          "(spr/nospr) new split to right
+set shortmess+=I        "(shm)disable the welcome screen
+set number              "(nu)show line numbers
+set relativenumber      "(rnu)show relative numbers
+set virtualedit=all     "(ve) allow cursor out of bounds
+set scrolloff=3         "(so)minimal # of lines above/below cursor
+set breakindent         "(bri)indents broken lines to match 1st line
+set linebreak           "(lbr)prevent word wrap from splitting words
+set showbreak=…         "(sbr)elipsis char (u2026) for soft-wrapped lines
+set guicursor+=c:ver20  "(gcr) use vertical bar/beam in command line
 set listchars=tab:▸\ ,eol:¬     "vimcast #1 textmate tabstops(u25b8) and EOL(u00ac)
 set listchars+=trail:-,nbsp:+   "(lcs) and trail characters and no-break-space
-""" STATUS LINE SETTINGS FROM DEREK WYATT """
-set statusline=%f\ %m\ %r\ Line:%l/%L[%p%%]\ Col:%c\ Buf:%n\ [%b][0x%B]
+set ignorecase            "(ic)ignore case in search patterns
+set smartcase            "(scs)override ignorecase if capitals in pattern
+"set spell               "spell checking
+"set lazyredraw          "(lz) Don't update the display while executing macros
+"set statusline=%.20f\ [%n]%m%r%=[%03b][0x%02B][%4l/%L\ :%2c]
 
-"TEXT {{{1
-"=======================================================
-if executable('par') == 1   "executable() returns '-1' for 'not implemented...'
-    set formatprg=par\ -w79
-endif
-set wrap                    "word wrap (on by default) (soft-wraps text)
-" set wrapmargin=5          "(if tw=0) # of chars to win border before wrapping starts
-" set textwidth=80          "(tw)# of columns before new row automatically starts
-set whichwrap=<,>,[,]       "(ww) enable <left>/<right> to loop up/down line N,V,I,R modes
-set formatoptions+=l        "(fo) long lines already past tw not auto-wrapped in insert mode
-" set formatoptions+=a      "(fo) automatic formatting of paragraphs
-" set nrformats+=alpha      "(nf) inc [A-Z a-z] (disrupts linewise /)
-" set cpoptions+=$          "(cpo) use on screen '$' display w/ 'c' or 'C' commands
-" set display=lastline      "don't display @ with long paragraphs
-set nojoinspaces            "(nojs)don't add extra space after .?! with join commands
-
-"TABS {{{1
+"TABS & WRAPPING {{{1
 "=======================================================
 set expandtab      "expand <Tab> to spaces
 set tabstop=4      "(ts)spaces for a \t character
 set shiftwidth=0   "(sw)(0=> follow ts) # spaces for auto indent (>> <<)
 set softtabstop=-1 "(sts)(-1=> follow sw) spaces for <TAB> & <BS> keys
 set shiftround     "(sr)round '<' '>' (same as i_ and i_) to multiples of sw
-
-"SEARCH {{{1
-"=======================================================
-set wrapscan   "(ws) set the search scan to wrap end of buffer
-set hlsearch   "(hls)highlight all search results
-set incsearch  "(is)increment search (show matches as type)
-set ignorecase "(ic)case-insensitive search (overruled by '\C')
-set smartcase  "(scs)upper-case sensitive search (overrides 'ignorecase')
-"" Note use 'set shortmess-=S' in INTERFACE to show count when searching
+"
+set wrap                    "word wrap (on by default) (soft-wraps text)
+set textwidth=79            "(tw)# of columns before new row automatically starts
+set whichwrap=<,>,[,]       "(ww) enable <left>/<right> to loop up/down line N,V,I,R modes
+set formatoptions+=l        "(fo) long lines already past tw not auto-wrapped in insert mode
+" set cpoptions+=$          "(cpo) use on screen '$' display w/ 'c' or 'C'
+" commands
 
 "AUTO-COMMANDS {{{1
 "=======================================================
-
-" Reset cursor at startup
-"   terminals not using block cursor may cause problems because
-"   vim only resets the cursor AFTER exiting insert mode
-" <https://github.com/g6ai/dotfiles/wiki/vimrc#cursor-setting>
-"if !has('gui_running')
-"    augroup reset_cursor_shape
-"        au!
-"        autocmd VimEnter * normal! :startinsert :stopinsert
-"        autocmd VimEnter * redraw!
-
-"        "<https://ttssh2.osdn.jp/manual/4/en/usage/tips/vim.html>
-"        " `2` Block,  `[4 Underline, `[6` Beam; (subtract 1 for blinking)
-"        autocmd VimLeave * silent !echo -ne "\e[6 q"
-"    augroup END
-"endif
-
-augroup filetype_text
+augroup filetype_markdown
     autocmd!
-    " automatically load views for text files
-    autocmd FileType text silent! loadview
+    autocmd FileType markdown setlocal list spell
+    autocmd FileType markdown setlocal colorcolumn=79
+    autocmd BufEnter *.md,*.markdown match Exception /\v%>79v./
+    autocmd BufLeave *.md,*.markdown match none
+    autocmd FileType markdown inoremap <buffer> ',, &apos;
+    autocmd FileType markdown inoremap <buffer> ",, &quot;
+    autocmd FileType markdown inoremap <buffer> &,, &amp;
+    autocmd FileType markdown inoremap <buffer> <,, &lt;
+    autocmd FileType markdown inoremap <buffer> >,, &gt;
+augroup END
+
+augroup filetype_gitcommit
+    autocmd!
+    autocmd FileType gitcommit setlocal textwidth=72
+    autocmd FileType gitcommit setlocal colorcolumn=50,72
+    autocmd FileType gitcommit setlocal list spell
 augroup END
 
 augroup filetype_html
@@ -195,8 +86,8 @@ augroup END
 
 augroup filetype_python
     autocmd!
-    autocmd FileType python setlocal colorcolumn=79
     autocmd FileType python setlocal list spell
+    autocmd FileType python setlocal colorcolumn=79
     autocmd BufEnter *.py match Exception /\v%>79v./
     autocmd BufLeave *.py match none
 augroup END
@@ -209,66 +100,18 @@ augroup filetype_kivy
     autocmd FileType kivy setlocal comments=:#
 augroup END
 
-augroup filetype_markdown
-    autocmd!
-    autocmd FileType markdown setlocal list spell
-    autocmd FileType markdown setlocal colorcolumn=79
-    autocmd BufEnter *.md,*.markdown match Exception /\v%>79v./
-    autocmd BufLeave *.md,*.markdown match none
-    autocmd FileType markdown inoremap <buffer> ',, &apos;
-    autocmd FileType markdown inoremap <buffer> ",, &quot;
-    autocmd FileType markdown inoremap <buffer> &,, &amp;
-    autocmd FileType markdown inoremap <buffer> <,, &lt;
-    autocmd FileType markdown inoremap <buffer> >,, &gt;
-    autocmd FileType markdown setlocal statusline=%.20f     "Path to the file (max 20 chars)
-    autocmd FileType markdown setlocal statusline+=\ [%n]   "Buffer number in ' [#]'
-    autocmd FileType markdown setlocal statusline+=%m       "Mofied Flag in brackets [+] or [-]
-    autocmd FileType markdown setlocal statusline+=%r       "Readonly Flag in brackets [RO]
-    autocmd FileType markdown setlocal statusline+=%=       "Switch to right side
-    autocmd FileType markdown setlocal statusline+=[%03b]   "[Dec val] char (≥ 3, zero pad)
-    autocmd FileType markdown setlocal statusline+=[0x%02B] "[0xHex val] char (≥ 2, zero pad)
-    autocmd FileType markdown setlocal statusline+=[        "Add '['
-    autocmd FileType markdown setlocal statusline+=%4l      "Current line (min 4 width)
-    autocmd FileType markdown setlocal statusline+=/        "Add '/'
-    autocmd FileType markdown setlocal statusline+=%L       "Total lines
-    autocmd FileType markdown setlocal statusline+=\ :      "Add ' Col'
-    autocmd FileType markdown setlocal statusline+=%2c      "Column (min 2 width)
-    autocmd FileType markdown setlocal statusline+=]        "Add ']'
-augroup END
-
-augroup filetype_vim
-    autocmd!
-    autocmd FileType vim setlocal foldmethod=marker "unnecessary if use modelines
-augroup END
-
-augroup filetype_git
-    autocmd!
-    autocmd FileType gitconfig setlocal textwidth=72
-    autocmd FileType gitconfig setlocal formatoptions+=t   " auto wrap/format
-    autocmd FileType gitconfig setlocal colorcolumn=72
-    autocmd FileType gitcommit setlocal list spell
-augroup END
-
-"PACKAGES/PLUGINS {{{1
+"FUNCTIONAL PLUGINS {{{1
 "=======================================================
 " TRIAL PLUGINS
-packadd! colorizer
+packadd! colorizer  " produces errors in vim files: red #123456
 "mapping: <leader>c mapped to ':ColorToggle'
-" red #123456
+packadd! scratch
+"mapping: <leader>s mapped to open Scratch buffer
 
-if has('win32') || has('win64')
-    packadd! ctrlp              "ctrlp.vim fuzzy file finder
-    let g:ctrlp_cache_dir =$HOME.'/AppData/Roaming/Vim/ctrlp_cache//'       " sets cache dir
-
-    let g:ctrlp_arg_map = 1     "<Ctrl-Y> and <Ctrl-O> require h,v,t,<CR> as default behavior
-    " let g:ctrlp_switch_buffer = 'et' "only jumps to buf in window w/ <CR>; tab w/ <C-t>
-    " let g:ctrlp_open_multiple_files = 'h'   " open multiple files in horizontal splits
-endif
-
-"TERMINAL PLUGINS
-if !has('nvim') && !has('gui_running')
-    " for console vim
-    packadd! terminus   "Changes cursor, mouse, etc. for terminal vim
+" VIM-ONLY (SEARCH) PLUGINS
+if !has('nvim')
+    packadd! visual-star-search "enables */# searches on visual selections
+    packadd! traces             "previews of ranges and substitutions
 endif
 
 " VIM DISTRIBUTION PLUGINS
@@ -297,12 +140,6 @@ packadd! repeat             "Tim Pope's repeat.vim
 packadd! characterize       "Tim Pope's characterize.vim extending `ga`
 packadd! tabular            "tabular.vim for aligning text
 packadd! exchange           "exchange with cx operator (or v_X)
-
-" SEARCH PLUGINS
-packadd! visual-star-search "enables */# searches on visual selections
-if !has('nvim')
-    packadd! traces             "previews of ranges and substitutions
-endif
 
 " VISIBLE PLUGINS
 packadd! fugitive           "Git integration plugin
@@ -364,9 +201,6 @@ let g:indent_guides_guide_size = 0  "set to 1, for vertical lines
 let g:indent_guides_color_change_percent = 5
 "mapping: <leader>i mapped to ':IndentGuidesToggle'
 
-packadd! scratch
-"mapping: <leader>s mapped to open Scratch buffer
-
 packadd! nerdtree           "NerdTree File Browser for vim
 if has('win32') || has('win64')
     let g:NERDTreeBookmarksFile=$HOME.'/vimfiles/.NERDTreeBookmarks' "set bmark loc
@@ -384,23 +218,20 @@ let g:NERDTreeAutoDeleteBuffer=1 " Auto delete the buffer of deleted file
 "mapping: <leader>n mapped to toggle
 "mapping: <leader>N mapped to :NERDTree
 
+"COLORSCHEME PLUGINS {{{1
 packadd! airline            "fancy status/tabline for vim
-if has('gui_running')
-    " use powerline fonts for gui vim
-    let g:airline_powerline_fonts = 1 "use powerline symbols (only available for some fonts)
-    if !exists('g:airline_symbols')
-        let g:airline_symbols = {}
-    endif
-    let g:airline_symbols.colnr = '' "no column number symbol (it wasn't working)
-else
-    " use powerline fonts for terminal vim
-    " let g:airline_powerline_fonts = 1 "use powerline symbols (only available for some fonts)
-    " let g:airline_symbols_ascii = 1
-endif
+" let g:airline_powerline_fonts = 1 "use powerline symbols (only available for some fonts)
+" if !exists('g:airline_symbols')
+"     let g:airline_symbols = {}
+" endif
+" let g:airline_symbols.colnr = '' "no column number symbol (it wasn't working)
+" use powerline fonts for terminal vim
+" let g:airline_powerline_fonts = 1 "use powerline symbols (only available for some fonts)
+" let g:airline_symbols_ascii = 1
 
 " airline theme
-" let g:airline_theme='google_dark'     "colorful/understated green/purplish-blue/orange
 let g:airline_theme='ravenpower'      "non-distracting grey/blue/orange
+" let g:airline_theme='google_dark'     "colorful/understated green/purplish-blue/orange
 " # alert colors taken from murmur.vim
 " let s:cterm_alert     = 88   " Modified file alert color
 " let s:gui_alert       = '#870000'
@@ -459,9 +290,6 @@ let g:airline_detect_spelllang=0
 let g:airline#extensions#wordcount#filetypes =
     \ ['asciidoc', 'help', 'mail', 'markdown', 'nroff', 'org', 'plaintex', 'rst', 'tex', 'text']
 
-" display buffer number instead of hunks/branch info
-" let g:airline_section_b = airline#section#create_left(['[%n]']) "buffer # (no hunks, branch)
-
 " call airline#parts#define_function('charcodes', 'AirlineGetCharCodes')
 " function! AirlineGetCharCodes()
 "     return '"[%3b][0x%02B]"'
@@ -474,7 +302,6 @@ let g:airline#extensions#wordcount#filetypes =
 " checks:  [ 'indent', 'trailing', 'long', 'mixed-indent-file', " 'conflicts' ]
 " let g:airline#extensions#whitespace#skip_indent_check_ft = {'markdown': ['trailing']}
   " Use ['all'] to enable for all filetypes.
-
 "mapping: <leader>_ mapped to toggle Whitespace checking and <leader>- to toggle Airline
 
 "COLORSCHEME PLUGINS
@@ -494,13 +321,13 @@ else
 endif
 
 "Color Schemes
-packadd! code-dark      "code-dark colorscheme
 packadd! airline-themes "airline-themes
+packadd! code-dark      "code-dark colorscheme
 packadd! darkest        "darkest color schemes
 packadd! lightest       "lightest color schemes
 packadd! midrange       "midrange color schemes
 
-"MAPPINGS {{{1
+"GENERAL MAPPINGS {{{1
 "=======================================================
 "Leader settings (<leader>, <localleader>)
 :let mapleader = ','
@@ -515,15 +342,9 @@ inoremap ijk ijk
 noremap <expr> j (v:count ? 'j' : 'gj')
 noremap <expr> k (v:count ? 'k' : 'gk')
 
-"ex mode isn't very useful, make Q repeat last macro
-nnoremap Q @@
-
-"make Y behave similar to C and D rather than just being yy
-nnoremap Y y$
-
 "move tab pages with Shift-Left and Shift-Right
-nnoremap <silent><S-Left> :<C-U>execute 'tabm-'..v:count1<CR>
-nnoremap <silent><S-Right> :<C-U>execute 'tabm+'..v:count1<CR>
+nnoremap <silent><S-Left> :<C-U> execute 'silent! tabm-'..v:count1<CR>
+nnoremap <silent><S-Right> :<C-U>execute 'silent! tabm+'..v:count1<CR>
 
 "Ctrl-A/Ctrl-E to move to beginning/end of command-line
 cnoremap <C-a> <Home>
@@ -546,32 +367,33 @@ nnoremap <silent> <leader>w :let &wrap = (&wrap) ? 0 : 1<CR>:set wrap?<CR>
 "Toggle Paste Mode
 set pastetoggle=<Insert>
 if !has('gui_running')
-    map <leader>p :set invpaste<CR>
+    map <silent><leader>p :set invpaste paste?<CR>
 endif
 
+"Toggle Search Highlighting
+noremap <silent> <leader><leader> :let v:hlsearch = (v:hlsearch) ? 0 : 1<CR>
+
+" Vimcast Shortcut to rapidly toggle 'set list'
+nnoremap <silent> <leader>L :set list!<CR>:set list?<CR>
+
+" Vimcast Shortcut to rapidly toggle 'spelling'
+nnoremap <silent> <leader><C-S> :set invspell spell?<CR>
+
+"Toggle fold columns
+nnoremap <silent> <leader>\| :let &l:foldcolumn = (&l:foldcolumn) ? 0 : 3<CR>
+
+" Vimrc Mappings
 noremap <leader>ve :split $MYVIMRC<CR>
 noremap <leader>vs :source $MYVIMRC<CR>
+
+"Alternate Buffer Split
 noremap <leader># :sb#<CR>
-noremap <silent> <leader><leader> :let v:hlsearch = (v:hlsearch) ? 0 : 1<CR>
 
 "UPPERCASE/lowercase/Capitalize-toggles
 inoremap <S-Up> <ESC>gUiwgi
 inoremap <S-Down> <ESC>guiwgi
 inoremap <C-Up> <ESC>guiw~gi
 inoremap <C-Down> <ESC>guiw~gi
-
-"   TERMINAL MAPPINGS
-if has('win32') || has('win64')
-    nnoremap <F2> :set shell=cmd.exe<CR>:set shellcmdflag&<CR>:set shellquote&<CR>:set shellxquote&<CR>:set shellpipe&<CR>:set shellredir&<CR>:echo "[Shell: CMD]"<CR>
-    "see https://robindouglas.uk/powershell/vim/2018/04/05/PowerShell-with-Vim.html
-    " use pwsh.exe for powershell 6 and above
-    nnoremap <F3> :set shell=pwsh.exe<CR>:set shellcmdflag=-NoProfile\ -NoLogo\ -NonInteractive\ -Command<CR>:set shellquote=\"<CR>:set shellxquote=<CR>:set shellpipe=><CR>:set shellredir=><CR>:echo "[Shell: Powershell]"<CR>
-    " use `powershell.exe` for powershell 5
-    " nnoremap <F3> :set shell=powershell.exe<CR>:set shellcmdflag=-NoProfile\ -NoLogo\ -NonInteractive\ -Command<CR>:set shellquote=\"<CR>:set shellxquote=<CR>:set shellpipe=><CR>:set shellredir=><CR>:echo "[Shell: Powershell]"<CR>
-    "see https://vim.fandom.com/wiki/Use_cygwin_shell
-    " nnoremap <F4> :set shell=C:\cygwin64\bin\bash.exe<CR>:set shellcmdflag=--login\ -c<CR>:set shellquote&<CR>:set shellxquote=\"<CR>:set shellpipe&<CR>:set shellredir&<CR>:echo "[Shell: Cygwin]"<CR>
-    "<CR>:set shellslash<CR>:set shellxquote=\"<CR>let $PATH .= ';C:\cygwin64\bin'<CR>
-endif
 
 "   COLOR SCHEME MAPPINGS
 nnoremap <F5> :colorscheme gruvbox\|redraw\|echo g:colors_name<CR>
@@ -596,12 +418,6 @@ if has('gui_running')
     " nnoremap <F11> :set guifont=Sudo:h12\|redraw\|echo &gfn<CR>
     " nnoremap <F11> :set guifont=Source_Code_Pro:h9\|redraw\|echo &gfn<CR>
 endif
-
-" Vimcast Shortcut to rapidly toggle 'set list'
-nnoremap <silent> <leader>L :set list!<CR>:set list?<CR>
-
-" Vimcast Shortcut to rapidly toggle 'spelling'
-nnoremap <silent> <leader><C-S> :set invspell<CR>:set spell?<CR>
 
 " Select previously changed or yanked text
 noremap gV `[v`]
@@ -631,7 +447,8 @@ cnoremap %% <C-R>=fnameescape(expand('%:p:h')).'/'<CR>
 " nnoremap <leader>ev :vsp <C-R>=fnameescape(expand('%:h')).'/'<CR>
 " nnoremap <leader>et :tabe <C-R>=fnameescape(expand('%:h')).'/'<CR>
 
-"   PLUGIN MAPPINGS
+"PLUGIN MAPPINGS {{{1
+"=======================================================
 if has('python3')
     "UltiSnips Mappings
     nnoremap <leader>ue :UltiSnipsEdit!<CR>
@@ -643,10 +460,12 @@ if has('python3')
 endif
 
 "ALE Mappings
-nnoremap <leader>a :ALEToggleBuffer<CR>
-" nnoremap <leader>ad :ALEDetail<CR>
-" nnoremap <leader>af :ALEFix<CR>
-" nnoremap <leader>A :ALEToggle<CR>
+nnoremap <silent><leader>AA :ALEToggleBuffer<CR>:echo b:ale_enabled ? "ALE On" : "ALE Off"<CR>
+nnoremap <silent><leader>At :ALEToggle<CR>:echo g:ale_enabled ? "ALE Enabled" : "ALE Disabled"<CR>
+nnoremap <silent><leader>Ad :ALEDetail<CR>
+nnoremap <silent><leader>Ai :ALEInfo<CR>
+nnoremap <silent><leader>Af :ALEFix<CR>
+nnoremap <silent><leader>AF :let g:ale_fix_on_save = (g:ale_fix_on_save) ? 0 : 1<CR>:echo g:ale_fix_on_save ? "ALE fix on save: ON" : "ALE fix on save: OFF"<CR>
 
 "Indent-Guides Mappings
 nnoremap <leader>i :IndentGuidesToggle<CR>
@@ -691,13 +510,9 @@ if executable('fzf') == 1   "executable() returns '-1' for 'not implemented...'
     onoremap <leader><tab> <plug>(fzf-maps-o)
 endif
 
-"CtrlP Mappings
-if exists(":CtrlP")
-    nnoremap <leader><C-P> :CtrlPMixed<CR>
-endif
-
 "NERDTree Mappings
-nnoremap <leader>N :NERDTree<CR>
+" nnoremap <leader>N :NERDTree<CR>
+nnoremap <silent> <expr> <leader>N g:NERDTree.IsOpen() ? "\:NERDTreeClose<CR>" : "\:NERDTree<CR>"
 "Create shortcut combining :NERDTreeFind and :NERDTreeToggle functionality
 nnoremap <silent> <expr> <leader>n g:NERDTree.IsOpen() ? "\:NERDTreeClose<CR>" : bufexists(expand('%')) ? "\:NERDTreeFind<CR>" : "\:NERDTree<CR>"
 
@@ -705,8 +520,11 @@ nnoremap <silent> <expr> <leader>n g:NERDTree.IsOpen() ? "\:NERDTreeClose<CR>" :
 nnoremap <leader>- :AirlineToggle<CR>
 nnoremap <leader>_ :AirlineToggleWhitespace<CR>
 
-"Experimental {{{2
-"-------------------------------------------------------
+"EXPERIMENTAL MAPPINGS {{{1
+"=======================================================
+cabbrev pandoc! !pandoc %:p:S -o "%:p:h/%:t:r.html" -s --toc -c notes.css
+cabbrev pandocT! !pandoc %:p:S -o "%:p:h/%:t:r.html" -s --toc -c notes.css -M title="%:t:r"
+
 iabbrev ->;; →
 iabbrev =>;; ⇒
 
@@ -715,12 +533,6 @@ abbrev <expr> D;; '['.strftime("%Y-%m-%d").']'
 abbrev <expr> pwd;; fnameescape(expand('%:p:h'))
 abbrev <expr> PWD;; fnameescape(getcwd())
 abbrev <expr> ls;; fnameescape(expand('%:p:h')) . "/"
-
-if has('browse')
-    abbrev <expr> f;; fnamemodify(browse(0, 'File Path', '%:p:h', ''), ":p")
-    abbrev <expr> F;; fnamemodify(browse(0, 'File Path', '.', ''), ":p")
-    " abbrev <expr> F;; '"' . fnamemodify(browse(0, 'File Path', '%:p:h', ''), ':p') . '"'
-endif
 
 digraph ## 9552 "═ digraph (Box drawings double horizontal)
 digraph zw 8204 " digraph of a zero width non joiner character (U+200C)
@@ -739,14 +551,25 @@ nnoremap ]gq :cafter<CR>
 
 nnoremap <silent> <leader>W :2match Error /\v\s+$/<CR>
 nnoremap <silent> <leader>WW :2match none<CR>
-nnoremap <leader>1 :setlocal foldlevel=1<CR>
-nnoremap <leader>2 :setlocal foldlevel=2<CR>
-nnoremap <leader>3 :setlocal foldlevel=3<CR>
+
+" if executable('par') == 1   "executable() returns '-1' for 'not implemented...'
+"     set formatprg=par\ -w79
+" endif
+
+" " Vimcast :Wrap command (:set wrap linebreak nolist)
+" command! -nargs=* Wrap set wrap linebreak nolist
+
+"" https://vim.fandom.com/wiki/Use_cygwin_shell
+"" Credit: Siddhant
+""open explorer in the current file's directory
+"noremap <leader>e :!start explorer %:p:h:8<cr>
+""open windows command prompt in the current file's directory
+"noremap <leader>c :!start cmd /k cd %:p:h:8<cr>
+""open cygwin bash in the current file's directory
+"noremap <leader>b :!start bash --login -i -c 'cd `cygpath "%:p:h:8"`;bash'<cr>
 
 " Mapped Functions {{{2
 "-------------------------------------------------------
-highlight Normal ctermbg=NONE
-
 nnoremap <silent> <leader>T :call <SID>TransparencyToggle()<CR>
 function! s:TransparencyToggle()
     if !has('nvim')
@@ -754,7 +577,7 @@ function! s:TransparencyToggle()
         \ has_key(hlget('EndOfBuffer', v:true)[0], 'ctermbg')
             if has_key(hlget('Normal', v:true)[0], 'ctermbg')
                 let g:prev_normal_ctermbg = hlget('Normal', v:true)[0]['ctermbg']
-                " highlight! Normal ctermbg=NONE
+                highlight! Normal ctermbg=NONE
                 call hlset([{name: 'Normal', ctermbg: 'NONE'}])
             endif
             if has_key(hlget('EndOfBuffer', v:true)[0], 'ctermbg')
@@ -777,10 +600,10 @@ function! s:TransparencyToggle()
     else
         if exists("g:has_transparent_bkg") && g:has_transparent_bkg
             " if bkg is transparent, make it black (does not restore old bkg)
-            highlight Normal ctermbg = 0
+            highlight Normal ctermbg=0
             let g:has_transparent_bkg = v:false
         else
-            highlight Normal ctermbg = NONE
+            highlight Normal ctermbg=NONE
             let g:has_transparent_bkg = v:true
         endif
     endif
@@ -832,13 +655,6 @@ function! s:LocationListToggle()
     endif
 endfunction
 
-nnoremap <silent> <leader>\| :call <SID>FoldColumnToggle()<CR>
-" toggle fold columns
-function! s:FoldColumnToggle()
-    let &l:foldcolumn = (&l:foldcolumn) ? 0 : 3
-endfunction
-" nnoremap <silent> <expr> <leader>\| (&l:foldcolumn) ? ":setl fdc=0<CR>" : "setl fdc=3<CR>"
-
 " toggle `help` and `text` filetypes for current buffer
 nnoremap <silent> <leader><F1> :call <SID>HelpToTextToggle()<CR>
 function! s:HelpToTextToggle()
@@ -858,16 +674,6 @@ function! s:BrowseFilterOldfiles(filter_pattern, is_split, mods)
         silent execute "normal! :" . a:mods . " sbuffer #\<CR>"
     endif
 endfunction
-
-"MISCELLANEOUS {{{1
-"=======================================================
-if has('win32') || has('win32unix')
-    cabbrev pandoc! !pandoc %:p:S -o %:p:h:8/%:t:r.html -s --toc -c notes.css
-    cabbrev pandocT! !pandoc %:p:S -o %:p:h:8/%:t:r.html -s --toc -c notes.css -M title="%:t:r"
-else
-    cabbrev pandoc! !pandoc %:p:S -o "%:p:h/%:t:r.html" -s --toc -c notes.css
-    cabbrev pandocT! !pandoc %:p:S -o "%:p:h/%:t:r.html" -s --toc -c notes.css -M title="%:t:r"
-endif
 
 " DEREK WYATT: The following beast is something i didn't write... it will
 " return the syntax highlighting group that the current "thing" under the
@@ -890,16 +696,100 @@ function! <SID>SynStack()
   echo map(synstack(line('.'), col('.')), 'synIDattr(v:val, "name")')
 endfunction
 
-" " Vimcast :Wrap command (:set wrap linebreak nolist)
-" command! -nargs=* Wrap set wrap linebreak nolist
+"PORTABILITY {{{1
+"=======================================================
+if !has('nvim')
+    set hidden            "(hid) allow hiding unsaved buffers
+    " nvim does not utilize `:hardcopy` and uses `[range]:TOhtml` instead and
+    " print the resulting html file (NOTE: folds are not expanded)
+    " let &printfont = &guifont "print using the same font as guifont
+    set printoptions+=number:y  "default is (number:n ⇒ no line numbers)
+    set printoptions+=left:5pc  "default is (left:10pc,right:5pc,top:5pc,bottom:5pc)
+    set background=dark    "(bg) dark background (terminal defaults to light)
+    set fillchars=""       "(fcs)get rid of characters in window separators
+    set showcmd            "(sc) show commands as typed (default off for Unix)
+    set laststatus=2       "(ls) status line always on (0 never; 1 split)
+    set display=lastline   "(dy) don't display @ with long paragraphs
+    set formatoptions+=j   "(fo) sensibly join comments
+    set nojoinspaces       "(nojs) don't add extra space after .?! with join commands
+    set hlsearch           "(hls)highlight all search results
+    set incsearch          "(is)increment search (show matches as type)
+    set shortmess-=S       "(shm)do show search count message when searching!
+    set noundofile         "(udf) ** no undofile if not on `nvim` **
+    "ex mode isn't very useful, make Q repeat last macro
+    nnoremap Q @@
+    "make Y behave similar to C and D rather than just being yy
+    nnoremap Y y$
+endif
+if has('win32') || has('win32unix')
+    set pythonthreedll=python39.dll "was defaulting to python37.dll
+    set shellslash        "(ssl) force forward slash for expanded filenames
+    set path+=$HOME,$HOME/Desktop                      "set path to search for find commands
+    set viewdir=$HOME/vimfiles/views//                 "sets directory to save views
+    set directory=$HOME/AppData/Roaming/Vim//          "sets directory (used for swap files)
+    set backupdir=$HOME/AppData/Roaming/Vim//          "sets directory for write backups
+    set undodir=$HOME/AppData/Roaming/Vim//            "sets directory for undo files
+    set viminfofile=$HOME/AppData/Roaming/Vim/_viminfo "sets file name for viminfo
+    " set shell=pwsh.exe shellcmdflag=-NoProfile\ -NoLogo\ -NonInteractive\ -Command
+    " set shellquote=\" shellpipe=> shellredir=> shellxquote=
+    " Make terminal Campbell blue
+    highlight Terminal guibg=#012456
+    if executable('grep') == 1   "executable() returns '-1' for 'not implemented...'
+        let &g:grepprg='grep -n' "use grep (and prefix line #), instead of findstr
+    endif
+    if has('win32unix') && !has('nvim')                      "cygwin settings
+        set packpath^=$HOME/vimfiles//                       "sets directory to save views
+        set packpath+=/c/Program\ Files\ (x86)/Vim/vim82//
+        let $VIMRUNTIME = '/c/Program Files (x86)/Vim/vim82' "for syntax.vim
+        let $VIM = '/c/Program Files (x86)/Vim'
+        set runtimepath^=/c/Program\ Files\ (x86)/Vim/vim82
+    endif
+"   TERMINAL MAPPINGS
+    nnoremap <F2> :set shell=cmd.exe<CR>:set shellcmdflag&<CR>:set shellquote&<CR>:set shellxquote&<CR>:set shellpipe&<CR>:set shellredir&<CR>:echo "[Shell: CMD]"<CR>
+    "see https://robindouglas.uk/powershell/vim/2018/04/05/PowerShell-with-Vim.html
+    " use pwsh.exe for powershell 6 and above
+    nnoremap <F3> :set shell=pwsh.exe<CR>:set shellcmdflag=-NoProfile\ -NoLogo\ -NonInteractive\ -Command<CR>:set shellquote=\"<CR>:set shellxquote=<CR>:set shellpipe=><CR>:set shellredir=><CR>:echo "[Shell: Powershell]"<CR>
 
-"" https://vim.fandom.com/wiki/Use_cygwin_shell
-"" Credit: Siddhant
-""open explorer in the current file's directory
-"noremap <leader>e :!start explorer %:p:h:8<cr>
-""open windows command prompt in the current file's directory
-"noremap <leader>c :!start cmd /k cd %:p:h:8<cr>
-""open cygwin bash in the current file's directory
-"noremap <leader>b :!start bash --login -i -c 'cd `cygpath "%:p:h:8"`;bash'<cr>
+    cabbrev pandoc! !pandoc %:p:S -o %:p:h:8/%:t:r.html -s --toc -c notes.css
+    cabbrev pandocT! !pandoc %:p:S -o %:p:h:8/%:t:r.html -s --toc -c notes.css -M title="%:t:r"
+endif
+if has('gui_running')
+    set lines=50 columns=100
+    "set guioptions=egmrLt "(go) settings w/ menu (default: 'egmrLtT')
+    set guioptions-=m      "get rid of menu
+    set guioptions-=t      "get rid of tear-off menu items
+    set guioptions-=T      "get rid of toolbar
+    set guioptions+=e      "use GUI tab bar (causes Airline issues)
+    set guioptions+=c      "use console dialogs instead of GUI ones
+    set guioptions+=!      "execute  external commands in a terminal window
+    set guitablabel=[%N]   "define tab text: tab number [#]
+    set guitablabel+=%h    "define tab text: help buffer is [help]
+    set guitablabel+=%t    "define tab text: show just filename (tail)
+    if has('win32') || has('win64')
+        try|set guifont=Hack:h9|catch|endtry    "good programming font with decent utf support
+    elseif has('linux')
+        try|set guifont=Hack Nerd Font 10|catch|endtry    "format for Linux
+    endif
+endif
+" Reset cursor at startup
+"   terminals not using block cursor may cause problems because
+"   vim only resets the cursor AFTER exiting insert mode
+" <https://github.com/g6ai/dotfiles/wiki/vimrc#cursor-setting>
+if !has('nvim') && !has('gui_running')
+    augroup reset_cursor_shape
+        au!
+        autocmd VimEnter * normal! :startinsert :stopinsert
+        autocmd VimEnter * redraw!
 
-"END
+        "<https://ttssh2.osdn.jp/manual/4/en/usage/tips/vim.html>
+        " `2` Block,  `[4 Underline, `[6` Beam; (subtract 1 for blinking)
+        autocmd VimLeave * silent !echo -ne "\e[6 q"
+    augroup END
+endif
+if has('browse')
+    abbrev <expr> f;; fnamemodify(browse(0, 'File Path', '%:p:h', ''), ":p")
+    abbrev <expr> F;; fnamemodify(browse(0, 'File Path', '.', ''), ":p")
+    " abbrev <expr> F;; '"' . fnamemodify(browse(0, 'File Path', '%:p:h', ''), ':p') . '"'
+endif
+"END }}}
+" vim: foldmethod=marker
