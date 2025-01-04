@@ -46,7 +46,7 @@ set softtabstop=-1 "(sts)(-1=> follow sw) spaces for <TAB> & <BS> keys
 set shiftround     "(sr)round '<' '>' (same as i_ and i_) to multiples of sw
 "
 set wrap                    "word wrap (on by default) (soft-wraps text)
-set textwidth=79            "(tw)# of columns before new row automatically starts
+" set textwidth=79            "(tw)# of columns before new row automatically starts
 set whichwrap=<,>,[,]       "(ww) enable <left>/<right> to loop up/down line N,V,I,R modes
 set formatoptions+=l        "(fo) long lines already past tw not auto-wrapped in insert mode
 " set cpoptions+=$          "(cpo) use on screen '$' display w/ 'c' or 'C'
@@ -57,6 +57,7 @@ set formatoptions+=l        "(fo) long lines already past tw not auto-wrapped in
 augroup filetype_markdown
     autocmd!
     autocmd FileType markdown setlocal list spell
+    autocmd Filetype markdown setlocal textwidth=79
     autocmd FileType markdown setlocal colorcolumn=79
     autocmd BufEnter *.md,*.markdown match Exception /\v%>79v./
     autocmd BufLeave *.md,*.markdown match none

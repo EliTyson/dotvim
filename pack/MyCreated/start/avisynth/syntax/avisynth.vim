@@ -11,6 +11,8 @@ let b:current_syntax = "avisynth"
 
 syntax keyword avisynthKeyword function global return try catch last
 syntax keyword avisynthKeyword clip int float string bool val
+" Avisynth+ Constants <http://avisynth.nl/index.php/AviSynth%2B>
+syntax keyword avisynthKeyword SCRIPTDIR PROGRAMDIR USER_PLUS_PULGINS MACHINE_PLUS_PLUGINS USER_CLASSIC_PLUGINS MACHINE_CLASSIC_PLUGINS
 highlight link avisynthKeyword Keyword
 
 syntax match avisynthOperator "\v\<([=>])?"
@@ -96,17 +98,19 @@ syntax keyword avisynthFunction BlankClip Blackness ColorBars ColorBarsHD Compar
 " Plugins
 syntax keyword avisynthFunction LoadPlugin LoadCPlugin LoadVirtualDubPlugin LoadVFAPIPlugin
 
-" External Filters (Small Subset)
-syntax keyword avisynthFunction ColorMatrix QTInput DSS2 FVideoSource FFAudioSource FFIndexSource FFImageSource FFmpegSource2 FFMS2 LSmashSource2 LibavSource2 LSMASHVideoSource LWLibavVideoSource LSMASHAudioSource LWLibavAudioSource NicAC3Source NicDTSSource NicMPG123Source NicLPCMSource RaWavSource VSFilter DGDecode SoundOut SoxFilter FDecimate FDecimate2 TransAll WaveForm FixChromaBleeding QTGMC Yadif Decomb
+" Avisynth+ Functions <http://avisynth.nl/index.php/Category:Avisynthplus>
+syntax keyword avisynthFunction AddAutoloadDir ClearAutoloadDirs AddAlphaPlane CombinePlanes ConvertBits ConvertFromDoubleWidth ConvertFromStacked ConvertStacked ConvertTo16bit ConvertTo8bit ConvertToDoubleWidth ConvertToFloat ConvertToStacked Expr Extract ExtractA ExtractB ExtractG ExtractR ExtractU ExtractV ExtractY PlaneToY RemoveAlphaPlane SetFilterMTMode SetLogParams ShowU ShowV ShowY
 
+" External Filters (Small Subset)
+syntax keyword avisynthFunction ColorMatrix QTInput DSS2 FFVideoSource FFAudioSource FFIndexSource FFImageSource FFmpegSource2 FFMS2 LSmashSource2 LibavSource2 LSMASHVideoSource LWLibavVideoSource LSMASHAudioSource LWLibavAudioSource NicAC3Source NicDTSSource NicMPG123Source NicLPCMSource RaWavSource VSFilter DGDecode SoundOut SoxFilter FDecimate FDecimate2 TransAll WaveForm FixChromaBleeding QTGMC Yadif Decomb
 highlight link avisynthFunction Function
 
-" Clip Properties
-syntax keyword avisynthPorperties HasAudio HasVideo
+" Clip Properties <http://avisynth.nl/index.php/Clip_properties>
+syntax keyword avisynthProperties HasAudio HasVideo
 " Video Properties
-syntax keyword avisynthPorperties Width Height FrameCount FrameRate FrameRateNumerator FrameRateDenominator IsFieldBased IsFrameBased GetParity PixelType IsPlanar IsInterleaved IsRGB IsRGB24 IsRGB32 IsYUV IsYUV IsYUY2 IsY8 IsYV12 IsYV16 IsYV24 IsYV411 Is420 Is422 Is422 Is444 IsY IsYUVA IsRGB48 IsRGB64 IsPackedRGB IsPlanarRGB IsPlanarRGBA HasAlha ComponentSize NumComponents BitsPerComponent
+syntax keyword avisynthProperties Width Height FrameCount FrameRate FrameRateNumerator FrameRateDenominator IsFieldBased IsFrameBased GetParity PixelType IsPlanar IsInterleaved IsRGB IsRGB24 IsRGB32 IsYUV IsYUV IsYUY2 IsY8 IsYV12 IsYV16 IsYV24 IsYV411 Is420 Is422 Is422 Is444 IsY IsYUVA IsRGB48 IsRGB64 IsPackedRGB IsPlanarRGB IsPlanarRGBA HasAlpha ComponentSize NumComponents BitsPerComponent
 "Audio Properties
-syntax keyword avisynthPorperties AudioRate AudioDuration AudioLength AudioLengthF AudioLengthS AudioLengthLo AudioLengthHi AudioChannels AudioBits IsAudioFloat IsAudioInt
+syntax keyword avisynthProperties AudioRate AudioDuration AudioLength AudioLengthF AudioLengthS AudioLengthLo AudioLengthHi AudioChannels AudioBits IsAudioFloat IsAudioInt
 highlight link avisynthProperties Structure
 
 syntax match avisynthNumber "\v([+-])?(\k)@<!\d+(\.\d+)?"
@@ -117,6 +121,7 @@ syntax keyword avisynthBoolean true false yes no True False Yes No TRUE FALSE YE
 highlight link avisynthBoolean Boolean
 
 syntax region avisynthString start=/\v"/ skip=/\v\\./ end=/\v"/
+syntax region avisynthString start=/\v'/ skip=/\v\\./ end=/\v'/
 highlight link avisynthString String
 
 syntax match avisynthComment '\v#.*$'
