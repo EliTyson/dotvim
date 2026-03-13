@@ -24,7 +24,7 @@ At some point in the future, the fugitive plugin might be updated. To fetch the 
     git pull origin master
 
 ## Upgrading all bundled plugins
-You can use the foreach command to execute any shell script in from the root of all submodule directories. To update to the latest version of each plugin bundle, run the following:
+You can use the foreach command to execute any shell script from the root of all submodule directories. To update to the latest version of each plugin bundle, run the following:
 
     git submodule foreach git pull origin master
 

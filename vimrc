@@ -7,7 +7,7 @@
 "=======================================================
 filetype plugin indent on   "ensure filetype detection enabled
 syntax enable               "enable syntax highlighting, `enable` is default
-set commentstring=#\ %s     "(cms) set default comment string to use '#'
+" set commentstring=#\ %s     "(cms) set default comment string to use '#'
 set wildignore+=*\\^ntuser.*,*\\AppData\\*,*.dat,*.ini,*.exe,*.ffindex,*.o,*.obj
 set undofile                "(udf) create undo file when saving buffer
 
@@ -17,7 +17,6 @@ set notermguicolors     "(notgc) nvim v0.10.0 enables by default
 try|colorscheme gruvbox|catch|try|colorscheme evening|catch|endtry|endtry
 "prevent vim background from overwriting terminal transparency
 highlight! Normal ctermbg=NONE
-" highlight link VimLineComment Comment
 set splitbelow          "(sb/nosb) new split below
 set splitright          "(spr/nospr) new split to right
 set shortmess+=I        "(shm)disable the welcome screen
@@ -54,6 +53,11 @@ set formatoptions+=l        "(fo) long lines already past tw not auto-wrapped in
 
 "AUTO-COMMANDS {{{1
 "=======================================================
+augroup filetype_vim
+    autocmd!
+    autocmd Filetype vim setlocal commentstring=\"\ %s
+augroup END
+
 augroup filetype_markdown
     autocmd!
     autocmd FileType markdown setlocal list spell
@@ -93,6 +97,15 @@ augroup filetype_python
     autocmd BufLeave *.py match none
 augroup END
 
+augroup filetype_c
+    autocmd!
+    autocmd BufNewFile,BufRead *.h set filetype=c
+    autocmd FileType c setlocal colorcolumn=80
+    " autocmd BufEnter *.c match Exception /\v%>80v./
+    autocmd BufLeave *.c match none
+augroup END
+
+
 augroup filetype_kivy
     autocmd!
     autocmd BufNewFile,BufRead *.kv setfiletype kivy
@@ -101,7 +114,7 @@ augroup filetype_kivy
     autocmd FileType kivy setlocal comments=:#
 augroup END
 
-"FUNCTIONAL PLUGINS {{{1
+"PLUGINS {{{1
 "=======================================================
 " TRIAL PLUGINS
 packadd! colorizer  " produces errors in vim files: red #123456
@@ -159,8 +172,12 @@ let g:ale_hover_cursor = 0 "hover functionality (echo line)
     " Fix everything else with 'foo'.
 " let g:ale_linters = {'python': ['flake8', 'pylint'],} " ['pylint']
 let g:ale_linters = {'python': ['pylint'],}
+let g:ale_linters_ignore = {'c': ['clangcheck']}
+" let g:ale_c_clangcheck_options = '--'
+let g:ale_c_cc_options = '-std=c23 -Wall'
 " let g:ale_linters = {'python': ['flake8'],}
-let g:ale_echo_msg_format = '[%linter%:%severity%] %code: %%s'
+" let g:ale_echo_msg_format = '[%linter%:%severity%] %code: %%s'
+let g:ale_echo_msg_format = '[%linter%] %code: %%s'
 " let g:ale_linters_ignore = {'python': ['pylint'],}
 " let g:ale_open_list = 1 "will cause ALE to auto open loclist
 " g:ale_lint_on_text_changed=0
@@ -220,17 +237,54 @@ let g:NERDTreeAutoDeleteBuffer=1 " Auto delete the buffer of deleted file
 "mapping: <leader>N mapped to :NERDTree
 
 "COLORSCHEME PLUGINS {{{1
+packadd! ScrollColors       "Scroll through color schemes
+" usage
+"  :SCROLL or :COLOR => colorscheme browser
+"  :CN/:CP => Next Color-Scheme / Previous Color-Scheme
+packadd! setcolors          "another colorscheme scroller
+if has('gui_running')
+    let s:reversible = 'gruvbox one solarized8'
+    let s:light = 'seagrey-light vanilla-cake spring-night'
+    let s:blue = 'atlantis codeschool colorsbox-material lost-shrine mod8 moonlight pink-moon plastic seagrey-dark termschool two-firewatch vrunchbang-dark yellow-moon'
+    let s:dark = 'codedark Kafka ayu colorsbox-stbright colorsbox-steighties colorsbox-stnight office-dark slate jellybeans badwolf molokai tender'
+    let g:auto_colors = split(s:reversible.' '.s:light.' '.s:blue.' '.s:dark)
+else
+    let g:auto_colors = split('Kafka atlantis codedark colorsbox-stnight cosmic_latte edge gruvbox gruvbox-material OceanicNext one plastic solarized8 solarized8_flat spring-night tender')
+endif
+
+"Color Schemes
+packadd! airline-themes "airline-themes
+packadd! code-dark      "code-dark colorscheme
+packadd! darkest        "darkest color schemes
+packadd! lightest       "lightest color schemes
+packadd! midrange       "midrange color schemes
+
+"Status Line Color
 packadd! airline            "fancy status/tabline for vim
-" let g:airline_powerline_fonts = 1 "use powerline symbols (only available for some fonts)
 " if !exists('g:airline_symbols')
 "     let g:airline_symbols = {}
 " endif
 " let g:airline_symbols.colnr = '' "no column number symbol (it wasn't working)
 " use powerline fonts for terminal vim
-" let g:airline_powerline_fonts = 1 "use powerline symbols (only available for some fonts)
+let g:airline_powerline_fonts = 1 "use powerline symbols (only available for some fonts)
 " let g:airline_symbols_ascii = 1
 
 " airline theme
+" Only the dark theme is distributed with vim-airline. For more themes,
+" checkout the vim-airline-themes repository
+" (https://github.com/vim-airline/vim-airline-themes)
+
+" * if you want to patch the airline theme before it gets applied, you can
+" supply the name of a function where you can modify the palette. >
+" let g:airline_theme_patch_func = 'AirlineThemePatch'
+" function! AirlineThemePatch(palette)
+"   if g:airline_theme == 'badwolf'
+"     for colors in values(a:palette.inactive)
+"       let colors[3] = 245
+"     endfor
+"   endif
+" endfunction
+
 let g:airline_theme='ravenpower'      "non-distracting grey/blue/orange
 " let g:airline_theme='google_dark'     "colorful/understated green/purplish-blue/orange
 " # alert colors taken from murmur.vim
@@ -290,6 +344,8 @@ let g:airline_detect_spelllang=0
 " show word count for text-based file types
 let g:airline#extensions#wordcount#filetypes =
     \ ['asciidoc', 'help', 'mail', 'markdown', 'nroff', 'org', 'plaintex', 'rst', 'tex', 'text']
+" Cache highlighting changes to improve performance
+let g:airline_highlighting_cache = 1
 
 " call airline#parts#define_function('charcodes', 'AirlineGetCharCodes')
 " function! AirlineGetCharCodes()
@@ -304,29 +360,6 @@ let g:airline#extensions#wordcount#filetypes =
 " let g:airline#extensions#whitespace#skip_indent_check_ft = {'markdown': ['trailing']}
   " Use ['all'] to enable for all filetypes.
 "mapping: <leader>_ mapped to toggle Whitespace checking and <leader>- to toggle Airline
-
-"COLORSCHEME PLUGINS
-packadd! ScrollColors       "Scroll through color schemes
-" usage
-"  :SCROLL or :COLOR => colorscheme browser
-"  :CN/:CP => Next Color-Scheme / Previous Color-Scheme
-packadd! setcolors          "another colorscheme scroller
-if has('gui_running')
-    let s:reversible = 'gruvbox one solarized8'
-    let s:light = 'seagrey-light vanilla-cake spring-night'
-    let s:blue = 'atlantis codeschool colorsbox-material lost-shrine mod8 moonlight pink-moon plastic seagrey-dark termschool two-firewatch vrunchbang-dark yellow-moon'
-    let s:dark = 'codedark Kafka ayu colorsbox-stbright colorsbox-steighties colorsbox-stnight office-dark slate jellybeans badwolf molokai tender'
-    let g:auto_colors = split(s:reversible.' '.s:light.' '.s:blue.' '.s:dark)
-else
-    let g:auto_colors = split('Kafka atlantis codedark colorsbox-stnight cosmic_latte edge gruvbox gruvbox-material OceanicNext one plastic solarized8 solarized8_flat spring-night tender')
-endif
-
-"Color Schemes
-packadd! airline-themes "airline-themes
-packadd! code-dark      "code-dark colorscheme
-packadd! darkest        "darkest color schemes
-packadd! lightest       "lightest color schemes
-packadd! midrange       "midrange color schemes
 
 "GENERAL MAPPINGS {{{1
 "=======================================================
@@ -357,38 +390,37 @@ cnoremap <C-BS> <C-w>
 
 "Launch Explorer
 if has('win32') || has('win64')
-    noremap <silent> <leader>EE :set noshellslash<CR>:silent !start explorer %:p:h:8<CR>:set shellslash<CR><ESC>
+    noremap <silent> <leader>EE <Cmd>set noshellslash<CR>:silent !start explorer %:p:h:8<CR>:set shellslash<CR><ESC>
 elseif !has('gui_running')
-    noremap <silent> <leader>EE :!setsid nautilus %:h<CR><ESC>
+    noremap <silent> <leader>EE <Cmd>!setsid nautilus %:h<CR><ESC>
 endif
 
 "Toggle line wrap
-nnoremap <silent> <leader>w :let &wrap = (&wrap) ? 0 : 1<CR>:set wrap?<CR>
+nnoremap <silent> <leader>w <Cmd>let &wrap = (&wrap) ? 0 : 1<CR>:set wrap?<CR>
 
 "Toggle Paste Mode
-set pastetoggle=<Insert>
 if !has('gui_running')
-    map <silent><leader>p :set invpaste paste?<CR>
+    map <silent><leader>p <Cmd>set invpaste paste?<CR>
 endif
 
 "Toggle Search Highlighting
-noremap <silent> <leader><leader> :let v:hlsearch = (v:hlsearch) ? 0 : 1<CR>
+noremap <silent> <leader><leader> <Cmd>let v:hlsearch = (v:hlsearch) ? 0 : 1<CR>
 
 " Vimcast Shortcut to rapidly toggle 'set list'
-nnoremap <silent> <leader>L :set list!<CR>:set list?<CR>
+nnoremap <silent> <leader>L <Cmd>set list!<CR>:set list?<CR>
 
 " Vimcast Shortcut to rapidly toggle 'spelling'
-nnoremap <silent> <leader><C-S> :set invspell spell?<CR>
+nnoremap <silent> <leader><C-S> <Cmd>set invspell spell?<CR>
 
 "Toggle fold columns
-nnoremap <silent> <leader>\| :let &l:foldcolumn = (&l:foldcolumn) ? 0 : 3<CR>
+nnoremap <silent> <leader>\| <Cmd>let &l:foldcolumn = (&l:foldcolumn) ? 0 : 3<CR>
 
 " Vimrc Mappings
-noremap <leader>ve :split $MYVIMRC<CR>
-noremap <leader>vs :source $MYVIMRC<CR>
+noremap <leader>ve <Cmd>split $MYVIMRC<CR>
+noremap <leader>vs <Cmd>source $MYVIMRC<CR>
 
 "Alternate Buffer Split
-noremap <leader># :sb#<CR>
+noremap <leader># <Cmd>sb#<CR>
 
 "UPPERCASE/lowercase/Capitalize-toggles
 inoremap <S-Up> <ESC>gUiwgi
@@ -397,27 +429,27 @@ inoremap <C-Up> <ESC>guiw~gi
 inoremap <C-Down> <ESC>guiw~gi
 
 "   COLOR SCHEME MAPPINGS
-nnoremap <F5> :colorscheme gruvbox\|redraw\|echo g:colors_name<CR>
-nnoremap <F6> :colorscheme one\|redraw\|echo g:colors_name<CR>
+nnoremap <F5> <Cmd>colorscheme gruvbox\|redraw\|echo g:colors_name<CR>
+nnoremap <F6> <Cmd>colorscheme one\|redraw\|echo g:colors_name<CR>
 " nnoremap <F7> :colorscheme Kafka\|redraw\|echo g:colors_name<CR>
-nnoremap <F7> :colorscheme codedark\|redraw\|echo g:colors_name<CR>
+nnoremap <F7> <Cmd>colorscheme codedark\|redraw\|echo g:colors_name<CR>
 "<F8> mappet to setcolors function NextColor (cycles subset of colorschemes)
 " NextColor(0) chooses a random color scheme
-nnoremap <F8> :call NextColor(1)<CR>
-nnoremap <S-F8> :call NextColor(-1)<CR>
-nnoremap <A-F8> :call NextColor(0)<CR>
+nnoremap <F8> <Cmd>call NextColor(1)<CR>
+nnoremap <S-F8> <Cmd>call NextColor(-1)<CR>
+nnoremap <A-F8> <Cmd>call NextColor(0)<CR>
 
 "   FONT MAPPINGS
 if has('gui_running')
-    nnoremap <F9> :set guifont=Hack:h9\|redraw\|echo &gfn<CR>
-    nnoremap <S-F9> :set guifont=Iosevka:h10\|redraw\|echo &gfn<CR>
-    nnoremap <F10> :set guifont=Fira_Code:h9\|redraw\|echo &gfn<CR>
-    nnoremap <S-F10> :set guifont=mononoki:h10\|redraw\|echo &gfn<CR>
-    nnoremap <F11> :set guifont=JetBrains_Mono:h9\|redraw\|echo &gfn<CR>
-    nnoremap <S-F11> :set guifont=InputMono:h9\|redraw\|echo &gfn<CR>
-    " nnoremap <F11> :set guifont=Monoid:h9\|redraw\|echo &gfn<CR>
-    " nnoremap <F11> :set guifont=Sudo:h12\|redraw\|echo &gfn<CR>
-    " nnoremap <F11> :set guifont=Source_Code_Pro:h9\|redraw\|echo &gfn<CR>
+    nnoremap <F9> <Cmd>set guifont=Hack:h9\|redraw\|echo &gfn<CR>
+    nnoremap <S-F9> <Cmd>set guifont=Iosevka:h10\|redraw\|echo &gfn<CR>
+    nnoremap <F10> <Cmd>set guifont=Fira_Code:h9\|redraw\|echo &gfn<CR>
+    nnoremap <S-F10> <Cmd>set guifont=mononoki:h10\|redraw\|echo &gfn<CR>
+    nnoremap <F11> <Cmd>set guifont=JetBrains_Mono:h9\|redraw\|echo &gfn<CR>
+    nnoremap <S-F11> <Cmd>set guifont=InputMono:h9\|redraw\|echo &gfn<CR>
+    " nnoremap <F11> <Cmd>set guifont=Monoid:h9\|redraw\|echo &gfn<CR>
+    " nnoremap <F11> <Cmd>set guifont=Sudo:h12\|redraw\|echo &gfn<CR>
+    " nnoremap <F11> <Cmd>set guifont=Source_Code_Pro:h9\|redraw\|echo &gfn<CR>
 endif
 
 " Select previously changed or yanked text
@@ -434,8 +466,8 @@ vmap <C-DOWN> ]egv
 
 " Tmux Mappings
 if has_key(environ(), 'TMUX')
-    nnoremap <leader>tt :silent !tmux split-window -vl 10 -c %:h<CR>
-    nnoremap <leader>tw :silent !tmux split-window -fvl 10 -c %:h<CR>
+    nnoremap <leader>tt <Cmd>silent !tmux split-window -vl 10 -c %:h<CR>
+    nnoremap <leader>tw <Cmd>silent !tmux split-window -fvl 10 -c %:h<CR>
 endif
 
 " Vimcast :Edit mapping to allow tab completion for current file's directory
@@ -452,58 +484,60 @@ cnoremap %% <C-R>=fnameescape(expand('%:p:h')).'/'<CR>
 "=======================================================
 if has('python3')
     "UltiSnips Mappings
-    nnoremap <leader>ue :UltiSnipsEdit!<CR>
-    nnoremap <leader>uE :UltiSnipsEdit<CR>
-    nnoremap <leader>ur :call UltiSnips#RefreshSnippets()<CR>
+    nnoremap <leader>ue <Cmd>let g:UltiSnipsEditSplit="normal"<CR>:UltiSnipsEdit!<CR>
+    nnoremap <leader>us <Cmd>let g:UltiSnipsEditSplit="context"<CR>:UltiSnipsEdit!<CR>
+    nnoremap <leader>ut <Cmd>let g:UltiSnipsEditSplit="tabdo"<CR>:UltiSnipsEdit!<CR>
+    nnoremap <leader>uE <Cmd>let g:UltiSnipsEditSplit="normal"<CR>:UltiSnipsEdit<CR>
+    nnoremap <leader>ur <Cmd>call UltiSnips#RefreshSnippets()<CR>
 
     "Mundo Toggle
     nnoremap <leader>m :MundoToggle<CR>
 endif
 
 "ALE Mappings
-nnoremap <silent><leader>AA :ALEToggleBuffer<CR>:echo b:ale_enabled ? "ALE On" : "ALE Off"<CR>
-nnoremap <silent><leader>At :ALEToggle<CR>:echo g:ale_enabled ? "ALE Enabled" : "ALE Disabled"<CR>
-nnoremap <silent><leader>Ad :ALEDetail<CR>
-nnoremap <silent><leader>Ai :ALEInfo<CR>
-nnoremap <silent><leader>Af :ALEFix<CR>
-nnoremap <silent><leader>AF :let g:ale_fix_on_save = (g:ale_fix_on_save) ? 0 : 1<CR>:echo g:ale_fix_on_save ? "ALE fix on save: ON" : "ALE fix on save: OFF"<CR>
+nnoremap <silent><leader>AA <Cmd>ALEToggleBuffer<CR>:echo b:ale_enabled ? "ALE On" : "ALE Off"<CR>
+nnoremap <silent><leader>At <Cmd>ALEToggle<CR>:echo g:ale_enabled ? "ALE Enabled" : "ALE Disabled"<CR>
+nnoremap <silent><leader>Ad <Cmd>ALEDetail<CR>
+nnoremap <silent><leader>Ai <Cmd>ALEInfo<CR>
+nnoremap <silent><leader>Af <Cmd>ALEFix<CR>
+nnoremap <silent><leader>AF <Cmd>let g:ale_fix_on_save = (g:ale_fix_on_save) ? 0 : 1<CR>:echo g:ale_fix_on_save ? "ALE fix on save: ON" : "ALE fix on save: OFF"<CR>
 
 "Indent-Guides Mappings
-nnoremap <leader>i :IndentGuidesToggle<CR>
+nnoremap <leader>i <Cmd>IndentGuidesToggle<CR>
 
 "Colorizer Mappings
-nnoremap <leader>c :ColorToggle<CR>
+nnoremap <leader>c <Cmd>ColorToggle<CR>
 
 "Scratch Mappings
-nnoremap <leader>s :Scratch<CR>
-nnoremap <leader>S :ScratchPreview<CR>
+nnoremap <leader>s <Cmd>Scratch<CR>
+nnoremap <leader>S <Cmd>ScratchPreview<CR>
 
 "FZF Mappings
 if executable('fzf') == 1   "executable() returns '-1' for 'not implemented...'
-    nnoremap <C-F> :FZF<CR>
+    nnoremap <C-F> <Cmd>FZF<CR>
 
     "FZF-vim Mappings
     nnoremap <space><space> :History<CR>
-    nnoremap <leader>f :Files<CR>
-    nnoremap <leader>Ff :GFiles<CR>
-    nnoremap <leader>FF :GFiles?<CR>
-    nnoremap <leader>Fg :BCommits<CR>
-    nnoremap <leader>FG :Commits<CR>
-    nnoremap <leader>Fb :Buffers<CR>
-    nnoremap <leader>Fc :Colors<CR>
-    nnoremap <leader>FC :Commands<CR>
-    nnoremap <leader>Fl :BLines<CR>
-    nnoremap <leader>FL :Lines<CR>
-    nnoremap <leader>Ft :BTags<CR>
-    nnoremap <leader>FT :Tags<CR>
-    nnoremap <leader>Fe :Filetypes<CR>
-    nnoremap <leader>Fm :Marks<CR>
-    nnoremap <leader>FM :Maps<CR>
-    nnoremap <leader>Fw :Windows<CR>
-    nnoremap <leader>F: :History:<CR>
-    nnoremap <leader>F/ :History/<CR>
-    nnoremap <leader>Fs :Snippets<CR>
-    nnoremap <leader>Fh :Helptags<CR>
+    nnoremap <leader>f <Cmd>Files<CR>
+    nnoremap <leader>Ff <Cmd>GFiles<CR>
+    nnoremap <leader>FF <Cmd>GFiles?<CR>
+    nnoremap <leader>Fg <Cmd>BCommits<CR>
+    nnoremap <leader>FG <Cmd>Commits<CR>
+    nnoremap <leader>Fb <Cmd>Buffers<CR>
+    nnoremap <leader>Fc <Cmd>Colors<CR>
+    nnoremap <leader>FC <Cmd>Commands<CR>
+    nnoremap <leader>Fl <Cmd>BLines<CR>
+    nnoremap <leader>FL <Cmd>Lines<CR>
+    nnoremap <leader>Ft <Cmd>BTags<CR>
+    nnoremap <leader>FT <Cmd>Tags<CR>
+    nnoremap <leader>Fe <Cmd>Filetypes<CR>
+    nnoremap <leader>Fm <Cmd>Marks<CR>
+    nnoremap <leader>FM <Cmd>Maps<CR>
+    nnoremap <leader>Fw <Cmd>Windows<CR>
+    nnoremap <leader>F: <Cmd>History:<CR>
+    nnoremap <leader>F/ <Cmd>History/<CR>
+    nnoremap <leader>Fs <Cmd>Snippets<CR>
+    nnoremap <leader>Fh <Cmd>Helptags<CR>
 
     "FZF-vim Mapping for selecting mappings
     nnoremap <leader><tab> <plug>(fzf-maps-n)
@@ -513,13 +547,13 @@ endif
 
 "NERDTree Mappings
 " nnoremap <leader>N :NERDTree<CR>
-nnoremap <silent> <expr> <leader>N g:NERDTree.IsOpen() ? "\:NERDTreeClose<CR>" : "\:NERDTree<CR>"
+nnoremap <silent> <expr> <leader>N g:NERDTree.IsOpen() ? "\<Cmd>NERDTreeClose<CR>" : "\<Cmd>NERDTree<CR>"
 "Create shortcut combining :NERDTreeFind and :NERDTreeToggle functionality
-nnoremap <silent> <expr> <leader>n g:NERDTree.IsOpen() ? "\:NERDTreeClose<CR>" : bufexists(expand('%')) ? "\:NERDTreeFind<CR>" : "\:NERDTree<CR>"
+nnoremap <silent> <expr> <leader>n g:NERDTree.IsOpen() ? "\<Cmd>NERDTreeClose<CR>" : bufexists(expand('%')) ? "\<Cmd>NERDTreeFind<CR>" : "\<Cmd>NERDTree<CR>"
 
 "Airline Mappings
-nnoremap <leader>- :AirlineToggle<CR>
-nnoremap <leader>_ :AirlineToggleWhitespace<CR>
+nnoremap <leader>- <Cmd>AirlineToggle<CR>
+nnoremap <leader>_ <Cmd>AirlineToggleWhitespace<CR>
 
 "EXPERIMENTAL MAPPINGS {{{1
 "=======================================================
@@ -534,24 +568,25 @@ abbrev <expr> D;; '['.strftime("%Y-%m-%d").']'
 abbrev <expr> pwd;; fnameescape(expand('%:p:h'))
 abbrev <expr> PWD;; fnameescape(getcwd())
 abbrev <expr> ls;; fnameescape(expand('%:p:h')) . "/"
+abbrev  test;; <C-X>
 
 digraph ## 9552 "═ digraph (Box drawings double horizontal)
 digraph zw 8204 " digraph of a zero width non joiner character (U+200C)
 
 "Quickfix and Location List movement based on cursor position
-nnoremap [gl :lbefore<CR>
-" nnoremap [<A-L> :labove<CR>
-nnoremap ]gl :lafter<CR>
-" nnoremap ]<A-L> :lbelow<CR>
+nnoremap [gl <Cmd>lbefore<CR>
+" nnoremap [<A-L> <Cmd>labove<CR>
+nnoremap ]gl <Cmd>lafter<CR>
+" nnoremap ]<A-L> <Cmd>lbelow<CR>
 
-nnoremap [gq :cbefore<CR>
-" nnoremap [<A-C> :cabove<CR>
-nnoremap ]gq :cafter<CR>
-" nnoremap ]<A-C> :cbelow<CR>
+nnoremap [gq <Cmd>cbefore<CR>
+" nnoremap [<A-C> <Cmd>cabove<CR>
+nnoremap ]gq <Cmd>cafter<CR>
+" nnoremap ]<A-C> <Cmd>cbelow<CR>
 "FKeys Mapping
 
-nnoremap <silent> <leader>W :2match Error /\v\s+$/<CR>
-nnoremap <silent> <leader>WW :2match none<CR>
+nnoremap <silent> <leader>W <Cmd>2match Error /\v\s+$/<CR>
+nnoremap <silent> <leader>WW <Cmd>2match none<CR>
 
 " if executable('par') == 1   "executable() returns '-1' for 'not implemented...'
 "     set formatprg=par\ -w79
@@ -579,20 +614,20 @@ function! s:TransparencyToggle()
             if has_key(hlget('Normal', v:true)[0], 'ctermbg')
                 let g:prev_normal_ctermbg = hlget('Normal', v:true)[0]['ctermbg']
                 highlight! Normal ctermbg=NONE
-                call hlset([{name: 'Normal', ctermbg: 'NONE'}])
+                call hlset([#{name: 'Normal', ctermbg: 'NONE'}])
             endif
             if has_key(hlget('EndOfBuffer', v:true)[0], 'ctermbg')
                 let g:prev_eob_ctermbg = hlget('EndOfBuffer', v:true)[0]['ctermbg']
-                call hlset([{name: 'EndOfBuffer', ctermbg: 'NONE'}])
+                call hlset([#{name: 'EndOfBuffer', ctermbg: 'NONE'}])
             endif
         elseif exists("g:prev_normal_ctermbg") || exists("g:prev_eob_ctermbg")
             if exists("g:prev_normal_ctermbg")
-                if hlset([{name: 'Normal', ctermbg: g:prev_normal_ctermbg}])
+                if hlset([#{name: 'Normal', ctermbg: g:prev_normal_ctermbg}])
                     unlet g:prev_normal_ctermbg
                 endif
             endif
             if exists("g:prev_eob_ctermbg")
-                if hlset([{name: 'EndOfBuffer', ctermbg: g:prev_eob_ctermbg}])
+                if hlset([#{name: 'EndOfBuffer', ctermbg: g:prev_eob_ctermbg}])
                     unlet g:prev_eob_ctermbg
                 endif
             endif
@@ -717,6 +752,7 @@ if !has('nvim')
     set incsearch          "(is)increment search (show matches as type)
     set shortmess-=S       "(shm)do show search count message when searching!
     set noundofile         "(udf) ** no undofile if not on `nvim` **
+    set pastetoggle=<Insert>
     "ex mode isn't very useful, make Q repeat last macro
     nnoremap Q @@
     "make Y behave similar to C and D rather than just being yy
